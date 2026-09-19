@@ -36,6 +36,7 @@ const VehicleSearchForm = ({
             value={fin}
             onChange={(e) => setFin(e.target.value)}
             required
+            min={inicio}
             className="w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>

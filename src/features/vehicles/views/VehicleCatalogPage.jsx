@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLazyQuery } from '@apollo/client/react';
 import { GET_VEHICULOS_DISPONIBLES } from "../services/vehicleGraphQL";
@@ -10,62 +10,87 @@ import VehicleSearchForm from "../components/VehicleSearchForm";
 import VehicleFilters from "../components/VehicleFilters";
 import VehicleCard from "../components/VehicleCard";
 
+
+
+// 2. Función auxiliar para formatear la fecha al estándar local de los inputs
+const obtenerFechaFormateada = (diasDeDiferencia = 0) => {
+  const fecha = new Date();
+  fecha.setDate(fecha.getDate() + diasDeDiferencia);
+  // Seteamos una hora fija (ej. las 00:00 AM) para que no cambie por cada minuto que pasa el usuario en la web
+  fecha.setHours(0, 0, 0, 0); 
+  
+  const anio = fecha.getFullYear();
+  const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+  const dia = String(fecha.getDate()).padStart(2, '0');
+  const horas = String(fecha.getHours()).padStart(2, '0');
+  const minutos = String(fecha.getMinutes()).padStart(2, '0');
+
+  return `${anio}-${mes}-${dia}T${horas}:${minutos}`;
+};
+
 const VehicleCatalogPage = () => {
   const navigate = useNavigate();
-  const [inicio, setInicio] = useState("");
-  const [fin, setFin] = useState("");
+  
+  // 3. Inicializamos las fechas por defecto (Hoy e Inicio y Mañana Fin)
+  const [inicio, setInicio] = useState(obtenerFechaFormateada(0));
+  const [fin, setFin] = useState(obtenerFechaFormateada(365)); 
   const [showFilters, setShowFilters] = useState(false);
-
-  // Agrupación de filtros en un único estado para limpiar el código
+  
   const [filters, setFilters] = useState({
-    tipoVehiculo: "",
-    marca: "",
-    modelo: "",
-    precioMin: "",
-    precioMax: "",
+    tipoVehiculo: '',
+    marca: '',
+    modelo: '',
+    precioMin: '',
+    precioMax: ''
   });
 
-  const [getVehiculosDisponibles, { loading, data }] = useLazyQuery(
-    GET_VEHICULOS_DISPONIBLES,
-  );
+  const [getVehiculosDisponibles, { loading, data }] = useLazyQuery(GET_VEHICULOS_DISPONIBLES);
+
+  // 4. useEffect para disparar la primera búsqueda automáticamente al cargar la vista
+  useEffect(() => {
+    if (inicio && fin) {
+      getVehiculosDisponibles({
+        variables: {
+          inicio: new Date(inicio).toISOString(),
+          fin: new Date(fin).toISOString(),
+          filtro: null // Inicialmente se carga todo el catálogo sin filtros avanzados
+        }
+      });
+    }
+  }, []); // El array vacío asegura que solo ocurra UNA VEZ al montarse el componente
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (!inicio || !fin) {
-      toast.warning(
-        "Las fechas y horas de inicio y fin son obligatorias para buscar disponibilidad.",
-      );
+      toast.warning('Las fechas y horas de inicio y fin son obligatorias para buscar disponibilidad.');
       return;
     }
 
-    // Construcción del objeto de filtro GraphQL dinámicamente
+    if (new Date(inicio) >= new Date(fin)) {
+      toast.error("La fecha y hora de fin debe ser posterior a la fecha de inicio.",);
+      return;
+    }
+
     const filtroInput = {};
     if (filters.tipoVehiculo) filtroInput.tipoVehiculo = filters.tipoVehiculo;
     if (filters.marca) filtroInput.marca = filters.marca;
     if (filters.modelo) filtroInput.modelo = filters.modelo;
-    if (filters.precioMin)
-      filtroInput.precioMin = parseFloat(filters.precioMin);
-    if (filters.precioMax)
-      filtroInput.precioMax = parseFloat(filters.precioMax);
+    if (filters.precioMin) filtroInput.precioMin = parseFloat(filters.precioMin);
+    if (filters.precioMax) filtroInput.precioMax = parseFloat(filters.precioMax);
 
     getVehiculosDisponibles({
       variables: {
         inicio: new Date(inicio).toISOString(),
         fin: new Date(fin).toISOString(),
-        filtro: Object.keys(filtroInput).length > 0 ? filtroInput : null,
-      },
+        filtro: Object.keys(filtroInput).length > 0 ? filtroInput : null
+      }
     });
   };
 
   const handleReservar = (vehiculo) => {
-    sessionStorage.setItem(
-      "reserva_temp",
-      JSON.stringify({ vehiculo, inicio, fin }),
-    );
-    toast.success(
-      `Vehículo ${vehiculo.marca} ${vehiculo.modelo} seleccionado.`,
-    );
-    navigate("/reservas");
+    sessionStorage.setItem('reserva_temp', JSON.stringify({ vehiculo, inicio, fin }));
+    toast.success(`Vehículo ${vehiculo.marca} ${vehiculo.modelo} seleccionado.`);
+    navigate('/reservas');
   };
 
   const vehiculos = data?.vehiculosDisponibles || [];
@@ -89,11 +114,13 @@ const VehicleCatalogPage = () => {
           onSubmit={handleSearch}
         />
         {showFilters && (
-          <VehicleFilters filters={filters} setFilters={setFilters} />
+          <VehicleFilters 
+            filters={filters} 
+            setFilters={setFilters} 
+          />
         )}
       </div>
 
-      {/* Control de estados de la UI (Carga, Vacío o Resultados) */}
       {loading ? (
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -102,15 +129,14 @@ const VehicleCatalogPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {vehiculos.length === 0 ? (
             <div className="col-span-full bg-white p-8 rounded-lg shadow text-center text-gray-500">
-              Seleccione fechas de inicio y fin y presione buscar para ver
-              vehículos disponibles.
+              No hay vehículos disponibles para el rango de fechas seleccionado.
             </div>
           ) : (
             vehiculos.map((v) => (
-              <VehicleCard
-                key={v.idVehiculo}
-                vehiculo={v}
-                onReservar={handleReservar}
+              <VehicleCard 
+                key={v.idVehiculo} 
+                vehiculo={v} 
+                onReservar={handleReservar} 
               />
             ))
           )}
