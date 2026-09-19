@@ -7,14 +7,14 @@ function Navbar({brandLogo = '/rentar-logo.svg', brandAlt = 'Rentar Logo', links
   return (
     <nav className="bg-gray-800 text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center">
+        <div className="flex items-center justify-between h-auto">
+          <div className="flex items-center my-3">
             {/* Logo de la Marca clickable que te lleva al Home */}
-            <Link to="/" className="flex-shrink-0 flex items-center">
+            <Link to="/" className="flex-shrink-0 flex items-center bg-blue-300">
               <img
                 src={brandLogo}
                 alt={brandAlt}
-                className="h-8 w-auto hover:opacity-80 transition-opacity"
+                className="h-12 w-auto hover:opacity-80 transition-opacity"
               />
             </Link>
             {/* Links de Navegación */}
