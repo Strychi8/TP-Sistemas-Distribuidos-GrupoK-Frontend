@@ -23,7 +23,8 @@ const ClientFormPage = () => {
       dni: "",
       email: "",
       telefono: "",
-      direccion: "",
+      fechaNacimiento: "",
+      password: ""
     },
   });
 
@@ -49,8 +50,12 @@ const ClientFormPage = () => {
       isEditMode ? "Actualizando cliente..." : "Registrando cliente...",
     );
     try {
+      const payload = { ...data };
+      if (isEditMode && !payload.password){
+        delete payload.password;
+      }
       if (isEditMode) {
-        await clientService.update(id, data);
+        await clientService.update(id, payload);
         toast.update(toastId, {
           render: "Cliente actualizado correctamente",
           type: "success",
@@ -193,6 +198,50 @@ const ClientFormPage = () => {
               )}
             </div>
 
+            {/* Fecha de Nacimiento */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Fecha de Nacimiento *
+              </label>
+              <input
+                type="date"
+                {...register("fechaNacimiento", {
+                  required: "La fecha de nacimiento es obligatoria",
+                })}
+                className={`w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white ${errors.fechaNacimiento ? "border-red-500" : "border-gray-300"}`}
+              />
+              {errors.fechaNacimiento && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.fechaNacimiento.message}
+                </p>
+              )}
+            </div>
+
+            {/* Contraseña */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Contraseña{" "}
+                {isEditMode ? "(Dejar en blanco para mantener la actual)" : "*"}
+              </label>
+              <input
+                type="password"
+                {...register("password", {
+                  required: isEditMode ? false : "La contraseña es obligatoria",
+                  minLength: {
+                    value: 6,
+                    message: "La contraseña debe tener al menos 6 caracteres",
+                  },
+                })}
+                className={`w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white ${errors.password ? "border-red-500" : "border-gray-300"}`}
+                placeholder="••••••••"
+              />
+              {errors.password && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+
             {/* Teléfono */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -203,19 +252,6 @@ const ClientFormPage = () => {
                 {...register("telefono")}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white"
                 placeholder="Ej: 1123456789"
-              />
-            </div>
-
-            {/* Dirección */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Dirección
-              </label>
-              <input
-                type="text"
-                {...register("direccion")}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white"
-                placeholder="Ej: Av. Corrientes 1234"
               />
             </div>
           </div>
