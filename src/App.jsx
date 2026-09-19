@@ -1,6 +1,7 @@
 import { BrowserRouter } from 'react-router-dom';
 import AppRoutes from './routes/AppRoutes';
 import Layout from './components/Layout';
+import { ApolloProvider } from '@apollo/client/react';
 
 // Configuración de las rutas de la navbar
 const navigationLinks = [
@@ -11,11 +12,13 @@ const navigationLinks = [
 
 function App() {
   return (
-    <BrowserRouter>
-      <Layout navbarLinks={navigationLinks}>
-        <AppRoutes/>
-      </Layout>
-    </BrowserRouter>
+    <ApolloProvider client={client}>
+      <BrowserRouter>
+        <Layout navbarLinks={navigationLinks}>
+          <AppRoutes />
+        </Layout>
+      </BrowserRouter>
+    </ApolloProvider>
   );
 }
 
