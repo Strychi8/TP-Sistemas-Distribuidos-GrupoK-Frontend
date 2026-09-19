@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery } from '@apollo/client/react';
 import { GET_VEHICULOS_DISPONIBLES } from "../services/vehicleGraphQL";
 import { FaCar } from "react-icons/fa";
 import { toast } from "react-toastify";
 
 // Importación de los nuevos subcomponentes
-import VehicleSearchForm from "./VehicleSearchForm";
-import VehicleFilters from "./VehicleFilters";
-import VehicleCard from "./VehicleCard";
+import VehicleSearchForm from "../components/VehicleSearchForm";
+import VehicleFilters from "../components/VehicleFilters";
+import VehicleCard from "../components/VehicleCard";
 
 const VehicleCatalogPage = () => {
   const navigate = useNavigate();

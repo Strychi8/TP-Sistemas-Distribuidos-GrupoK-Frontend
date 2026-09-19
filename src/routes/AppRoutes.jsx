@@ -3,6 +3,7 @@ import VehicleListPage from '../features/vehicles/views/VehicleListPage';
 import VehicleFormPage from '../features/vehicles/views/VehicleFormPage';
 import ClientListPage from '../features/clients/views/ClientListPage';
 import ClientFormPage from '../features/clients/views/ClientFormPage';
+import VehicleCatalogPage from '../features/vehicles/views/VehicleCatalogPage';
 
 const AppRoutes = () => {
   return (
@@ -14,6 +15,8 @@ const AppRoutes = () => {
       <Route path="/vehiculos" element={<VehicleListPage />} />
       <Route path="/vehiculos/nuevo" element={<VehicleFormPage />} />
       <Route path="/vehiculos/editar/:id" element={<VehicleFormPage />} />
+      <Route path="/catalogo" element={<VehicleCatalogPage/>}/>
+      
 
       {/* Rutas de Clientes */}
       <Route path="/clientes" element={<ClientListPage />} />
