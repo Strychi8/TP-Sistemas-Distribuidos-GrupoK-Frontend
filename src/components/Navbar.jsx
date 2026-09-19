@@ -1,4 +1,4 @@
-const { useLocation } = require("react-router-dom")
+import { useLocation, Link } from "react-router-dom";
 
 
 function Navbar({brandLogo = '/rentar-logo.svg', brandAlt = 'Rentar Logo', links = [] }) {
