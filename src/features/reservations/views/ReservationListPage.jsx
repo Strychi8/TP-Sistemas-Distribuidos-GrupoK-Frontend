@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@apollo/client/react";
 
 import { GET_RESERVAS } from "../services/reservationGraphQL";
@@ -76,11 +76,12 @@ const ReservationListPage = () => {
       {/* Filtros */}
       <div className="bg-white p-4 rounded-lg shadow mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label htmlFor="idCliente" className="block text-sm font-medium text-gray-700">
             ID Cliente
           </label>
 
           <input
+            id="idCliente"
             type="text"
             name="idCliente"
             value={filtros.idCliente}
@@ -90,11 +91,12 @@ const ReservationListPage = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label htmlFor="idVehiculo" className="block text-sm font-medium text-gray-700">
             ID Vehículo
           </label>
 
           <input
+            id="idVehiculo"
             type="text"
             name="idVehiculo"
             value={filtros.idVehiculo}
@@ -104,11 +106,12 @@ const ReservationListPage = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label htmlFor="tipoVehiculo" className="block text-sm font-medium text-gray-700">
             Tipo de Vehículo
           </label>
 
           <select
+            id="tipoVehiculo"
             name="tipoVehiculo"
             value={filtros.tipoVehiculo}
             onChange={handleInputChange}
@@ -124,11 +127,12 @@ const ReservationListPage = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label htmlFor="estado" className="block text-sm font-medium text-gray-700">
             Estado
           </label>
 
           <select
+            id="estado"
             name="estado"
             value={filtros.estado}
             onChange={handleInputChange}
@@ -142,11 +146,12 @@ const ReservationListPage = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label htmlFor="fechaDesde" className="block text-sm font-medium text-gray-700">
             Fecha Desde
           </label>
 
           <input
+            id="fechaDesde"
             type="date"
             name="fechaDesde"
             value={filtros.fechaDesde}
@@ -156,11 +161,12 @@ const ReservationListPage = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label htmlFor="fechaHasta" className="block text-sm font-medium text-gray-700">
             Fecha Hasta
           </label>
 
           <input
+            id="fechaHasta"
             type="date"
             name="fechaHasta"
             value={filtros.fechaHasta}
