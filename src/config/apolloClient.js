@@ -1,30 +1,30 @@
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
-import { SetContextLink } from "@apollo/client/link/context";
-/*
-// 1. Configuramos el enlace base de la URL
+//import { SetContextLink } from "@apollo/client/link/context";
+
+// Enlace HTTP base
 const httpLink = new HttpLink({
-  uri: "http://localhost:4000/graphql", // Tu URL de GraphQL
+  uri: import.meta.env.VITE_GRAPHQL_URL || "http://localhost:8081/graphql",
 });
-/*
-PARA TENER EN CUENTA AL IMPLEMENTAR AAUTENTICAION + JWT
 
-// 2. Interceptamos cada petición para inyectar el token automáticamente
-const authLink = SetContextLink((_, { headers }) => {
-  // Buscamos el token donde sea que lo guardes (usualmente localStorage)
-  const token = localStorage.getItem("token");
+// Preparado para autenticación + JWT
+// Cuando se implemente autenticación, se puede habilitar:
+//
+// const authLink = new SetContextLink((_, { headers }) => {
+//   const token = localStorage.getItem("token");
+//
+//   return {
+//     headers: {
+//       ...headers,
+//       authorization: token ? `Bearer ${token}` : "",
+//     },
+//   };
+// });
 
-  return {
-    headers: {
-      ...headers,
-      authorization: token ? `Bearer ${token}` : "",
-    },
-  };
-});
-*/
-
-// 3. Creamos el cliente uniendo el interceptor con el enlace HTTP
-export const client = new ApolloClient({
-  // link: authLink.concat(httpLink), // CON AUTH + JWT
-  link: new HttpLink({uri: "http://localhost:8081/graphql", }) ,
+const client = new ApolloClient({
+  // Cuando se implemente JWT:
+  // link: authLink.concat(httpLink),
+  link: httpLink,
   cache: new InMemoryCache(),
 });
+
+export default client;

@@ -3,6 +3,7 @@ import VehicleListPage from '../features/vehicles/views/VehicleListPage';
 import VehicleFormPage from '../features/vehicles/views/VehicleFormPage';
 import ClientListPage from '../features/clients/views/ClientListPage';
 import ClientFormPage from '../features/clients/views/ClientFormPage';
+import ReservationListPage from '../features/reservations/views/ReservationListPage';
 import VehicleCatalogPage from '../features/vehicles/views/VehicleCatalogPage';
 
 const AppRoutes = () => {
@@ -22,6 +23,9 @@ const AppRoutes = () => {
       <Route path="/clientes" element={<ClientListPage />} />
       <Route path="/clientes/nuevo" element={<ClientFormPage />} />
       <Route path="/clientes/editar/:id" element={<ClientFormPage />} />
+
+      {/* Rutas de Reservas */}
+      <Route path="/reservas" element={<ReservationListPage />} />
 
       {/* Rutas 404 - Not Found */}
       <Route path="*" element={
