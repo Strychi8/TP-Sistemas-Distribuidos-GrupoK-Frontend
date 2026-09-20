@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLazyQuery } from '@apollo/client/react';
-import { GET_VEHICULOS_DISPONIBLES } from "../services/vehicleGraphQL";
+import { useLazyQuery, useQuery } from '@apollo/client/react';
+import {
+  GET_VEHICULOS,
+  GET_VEHICULOS_DISPONIBLES,
+} from "../services/vehicleGraphQL";
 import { FaCar } from "react-icons/fa";
 import { toast } from "react-toastify";
 
@@ -35,6 +38,7 @@ const VehicleCatalogPage = () => {
   const [inicio, setInicio] = useState(obtenerFechaFormateada(0));
   const [fin, setFin] = useState(obtenerFechaFormateada(365)); 
   const [showFilters, setShowFilters] = useState(false);
+  const [isFiltered, setIsFiltered] = useState(false);
   
   const [filters, setFilters] = useState({
     tipoVehiculo: '',
@@ -44,20 +48,11 @@ const VehicleCatalogPage = () => {
     precioMax: ''
   });
 
-  const [getVehiculosDisponibles, { loading, data }] = useLazyQuery(GET_VEHICULOS_DISPONIBLES);
+  // Carga inicial automática de todos los vehiculos
+  const { loading: loadingAll, data: dataAll } = useQuery(GET_VEHICULOS);
 
-  // 4. useEffect para disparar la primera búsqueda automáticamente al cargar la vista
-  useEffect(() => {
-    if (inicio && fin) {
-      getVehiculosDisponibles({
-        variables: {
-          inicio: new Date(inicio).toISOString(),
-          fin: new Date(fin).toISOString(),
-          filtro: null // Inicialmente se carga todo el catálogo sin filtros avanzados
-        }
-      });
-    }
-  }, []); // El array vacío asegura que solo ocurra UNA VEZ al montarse el componente
+  // Consulta perezosa para cuando apliquen los filtros por fechas o avanzados
+  const [getVehiculosDisponibles, { loading: loadingFiltered, data: dataFiltered }] = useLazyQuery(GET_VEHICULOS_DISPONIBLES);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -78,22 +73,46 @@ const VehicleCatalogPage = () => {
     if (filters.precioMin) filtroInput.precioMin = parseFloat(filters.precioMin);
     if (filters.precioMax) filtroInput.precioMax = parseFloat(filters.precioMax);
 
+    // Se cambia al modo filtrado
+    setIsFiltered(true);
+    const fechaInicioFormateada = `${inicio}:00`;
+    const fechaFinFormateada = `${fin}:00`;
     getVehiculosDisponibles({
       variables: {
-        inicio: new Date(inicio).toISOString(),
-        fin: new Date(fin).toISOString(),
-        filtro: Object.keys(filtroInput).length > 0 ? filtroInput : null
-      }
+        inicio: fechaInicioFormateada,
+        fin: fechaFinFormateada,
+        filtro: Object.keys(filtroInput).length > 0 ? filtroInput : null,
+      },
     });
   };
+
+  const handleClearFilters = () => {
+    setInicio(obtenerFechaFormateada(0));
+    setFin(obtenerFechaFormateada(365));
+    setFilters({
+      tipoVehiculo: "",
+      marca: "",
+      modelo: "",
+      precioMin: "",
+      precioMax: "",
+    });
+    // Se vuelve a leer del query general inicial
+    setIsFiltered(false);
+    setShowFilters(false);
+    toast.info("Se restableció el catálogo completo.");
+  }
 
   const handleReservar = (vehiculo) => {
     sessionStorage.setItem('reserva_temp', JSON.stringify({ vehiculo, inicio, fin }));
     toast.success(`Vehículo ${vehiculo.marca} ${vehiculo.modelo} seleccionado.`);
-    navigate('/reservas');
+    navigate('/mis-reservas');
   };
 
-  const vehiculos = data?.vehiculosDisponibles || [];
+  // Se seleccionan según el estado de isFiltered
+  const vehiculos = isFiltered
+    ? dataFiltered?.vehiculosDisponibles || []
+    : dataAll?.vehiculos || [];
+  const loading = loadingAll || loadingFiltered;
 
   return (
     <div className="container mx-auto p-4">
@@ -112,6 +131,8 @@ const VehicleCatalogPage = () => {
           showFilters={showFilters}
           setShowFilters={setShowFilters}
           onSubmit={handleSearch}
+          onClear={handleClearFilters}
+          isFiltered={isFiltered}
         />
         {showFilters && (
           <VehicleFilters 
@@ -127,7 +148,7 @@ const VehicleCatalogPage = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {vehiculos.length === 0 ? (
+          {(vehiculos.length === 0) ? (
             <div className="col-span-full bg-white p-8 rounded-lg shadow text-center text-gray-500">
               No hay vehículos disponibles para el rango de fechas seleccionado.
             </div>
@@ -137,6 +158,7 @@ const VehicleCatalogPage = () => {
                 key={v.idVehiculo} 
                 vehiculo={v} 
                 onReservar={handleReservar} 
+                showReserveButton={isFiltered}
               />
             ))
           )}

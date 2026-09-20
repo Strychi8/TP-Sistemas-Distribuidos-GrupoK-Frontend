@@ -20,3 +20,20 @@ export const GET_VEHICULOS_DISPONIBLES = gql`
     }
   }
 `;
+
+export const GET_VEHICULOS = gql`
+  query GetVehiculos {
+    vehiculos {
+      idVehiculo
+      patente
+      marca
+      modelo
+      anio
+      color
+      tipoVehiculo
+      precioDiario
+      estado
+      activo
+    }
+  }
+`;

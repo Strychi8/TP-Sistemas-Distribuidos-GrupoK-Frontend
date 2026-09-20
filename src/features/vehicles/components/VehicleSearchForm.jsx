@@ -1,4 +1,4 @@
-import { FaCalendarAlt, FaSearch, FaFilter } from "react-icons/fa";
+import { FaCalendarAlt, FaSearch, FaFilter, FaUndo } from "react-icons/fa";
 
 const VehicleSearchForm = ({
   inicio,
@@ -8,6 +8,8 @@ const VehicleSearchForm = ({
   showFilters,
   setShowFilters,
   onSubmit,
+  onClear,
+  isFiltered
 }) => {
   return (
     <form
@@ -42,7 +44,7 @@ const VehicleSearchForm = ({
         </div>
       </div>
 
-      <div className="flex justify-between items-center">
+      <div className="flex flex-wrap justify-between items-center gap-4">
         <button
           type="button"
           onClick={() => setShowFilters(!showFilters)}
@@ -53,6 +55,17 @@ const VehicleSearchForm = ({
             ? "Ocultar filtros avanzados"
             : "Mostrar filtros avanzados (Marca, Modelo, Tipo, Precio)"}
         </button>
+        <div className="flex gap-3">
+          {isFiltered && (
+            <button
+              type="button"
+              onClick={onClear}
+              className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded shadow transition duration-200 flex items-center gap-2"
+            >
+              <FaUndo /> Limpiar Filtros
+            </button>
+          )}
+        </div>
         <button
           type="submit"
           className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded shadow transition duration-200 flex items-center gap-2"

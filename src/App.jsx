@@ -8,7 +8,8 @@ import { client } from './config/apolloClient';
 const navigationLinks = [
   { path: "/vehiculos", label: "Vehículos" },
   { path: "/clientes", label: "Clientes" },
-  { path: "/reservas", label: "Reservas" }
+  { path: "/reservas", label: "Reservas" },
+  { path: "/catalogo", label: "Catálogo"}
 ];
 
 function App() {

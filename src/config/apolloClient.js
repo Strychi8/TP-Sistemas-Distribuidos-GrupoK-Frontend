@@ -25,6 +25,6 @@ const authLink = SetContextLink((_, { headers }) => {
 // 3. Creamos el cliente uniendo el interceptor con el enlace HTTP
 export const client = new ApolloClient({
   // link: authLink.concat(httpLink), // CON AUTH + JWT
-  link: "http://localhost:5173/graphql",
+  link: new HttpLink({uri: "http://localhost:8081/graphql", }) ,
   cache: new InMemoryCache(),
 });
