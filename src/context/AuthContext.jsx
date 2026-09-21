@@ -40,27 +40,37 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       const data = await authService.login(credentials);
-      // data esperado del backend: { token, email, rol }
-      const userData = { email: data.email, rol: data.rol };
+      // data esperado del backend: { token, email, roles: [...] }
+      // Extraemos el primer rol del array y quitamos "ROLE_" si lo tuviera
+      const rawRole = data.roles?.[0] || "";
+      const rol = rawRole.replace("ROLE_", "");
+
+      const userData = { email: data.email, rol };
+
       setToken(data.token);
       setUser(userData);
       sessionStorage.setItem("rentar_token", data.token);
       sessionStorage.setItem("rentar_user", JSON.stringify(userData));
 
-      if (data.rol === "CLIENTE") {
+      if (rol === "CLIENTE") {
         try {
           const clientes = await clientService.getActive();
-          const found = clientes.find((c) => c.email.toLowerCase() === data.email.toLowerCase());
+          const found = clientes.find(
+            (c) => c.email.toLowerCase() === data.email.toLowerCase(),
+          );
           if (found) {
             setClientProfile(found);
-            sessionStorage.setItem("rentar_client_profile", JSON.stringify(found));
+            sessionStorage.setItem(
+              "rentar_client_profile",
+              JSON.stringify(found),
+            );
           }
         } catch (err) {
           console.error("No se pudo precargar perfil de cliente:", err);
         }
       }
 
-      return data;
+      return userData; // Retornamos userData (que ya tiene .rol normalizado) o data adaptado
     } catch (error) {
       throw error;
     }
