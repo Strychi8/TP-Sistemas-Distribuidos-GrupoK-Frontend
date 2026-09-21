@@ -240,7 +240,10 @@ const ReservationListPage = () => {
                 </tr>
               ) : (
                 data.reservas.map((reserva) => (
-                  <ReservationCard key={reserva.idReserva} reserva={reserva} />
+                  <ReservationCard 
+                    key={reserva.idReserva} 
+                    reserva={reserva} 
+                  />
                 ))
               )}
             </tbody>
