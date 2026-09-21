@@ -5,10 +5,14 @@ import ClientListPage from '../features/clients/views/ClientListPage';
 import ClientFormPage from '../features/clients/views/ClientFormPage';
 import ReservationListPage from '../features/reservations/views/ReservationListPage';
 import VehicleCatalogPage from '../features/vehicles/views/VehicleCatalogPage';
+import LoginPage from '../features/auth/views/LoginPage';
 
 const AppRoutes = () => {
   return (
     <Routes>
+      {/* Ruta de Login */}
+      <Route path="/login" element={<LoginPage />} />
+
       {/* Redirección por defecto */}
       <Route path="/" element={<Navigate to="/vehiculos" replace />} />
 
