@@ -89,7 +89,7 @@ function Navbar({ brandLogo = "/rentar-logo.svg", brandAlt = "Rentar Logo" }) {
           </div>
 
           {/* Dropdown de usuario (oculto en /login) */}
-          {!isLoginPage && (
+          {!isLoginPage && isAuthenticated && (
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
