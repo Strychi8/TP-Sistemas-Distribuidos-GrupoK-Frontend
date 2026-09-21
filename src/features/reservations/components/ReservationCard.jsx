@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 
-const ReservationCard = ({ reserva }) => {
+const ReservationCard = ({ reserva, onCancel }) => {
   const getEstadoClasses = () => {
     switch (reserva.estado) {
       case "CONFIRMADA":
@@ -50,6 +50,19 @@ const ReservationCard = ({ reserva }) => {
           {reserva.estado}
         </span>
       </td>
+
+      {onCancel && (
+        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+          {reserva.estado === "CONFIRMADA" && (
+            <button
+              onClick={() => onCancel(reserva.idReserva)}
+              className="bg-[#1F2937] hover:bg-gray-700 text-white font-bold py-1.5 px-3 rounded transition-colors"
+            >
+              Cancelar
+            </button>
+          )}
+        </td>
+      )}
     </tr>
   );
 };

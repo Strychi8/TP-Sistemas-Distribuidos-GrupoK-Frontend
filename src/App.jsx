@@ -7,6 +7,7 @@ const navigationLinks = [
   { path: "/vehiculos", label: "Vehículos" },
   { path: "/clientes", label: "Clientes" },
   { path: "/reservas", label: "Reservas" },
+  { path: "/mis-reservas", label: "Mis Reservas" },
   { path: "/catalogo", label: "Catálogo"}
 ];
 

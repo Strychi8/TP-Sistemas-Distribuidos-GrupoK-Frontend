@@ -12,15 +12,15 @@ import { toast } from "react-toastify";
 import VehicleSearchForm from "../components/VehicleSearchForm";
 import VehicleFilters from "../components/VehicleFilters";
 import VehicleCard from "../components/VehicleCard";
-
+import reservationService from "../../reservations/services/reservationService";
 
 
 // 2. Función auxiliar para formatear la fecha al estándar local de los inputs
 const obtenerFechaFormateada = (diasDeDiferencia = 0) => {
   const fecha = new Date();
   fecha.setDate(fecha.getDate() + diasDeDiferencia);
-  // Seteamos una hora fija (ej. las 00:00 AM) para que no cambie por cada minuto que pasa el usuario en la web
-  fecha.setHours(0, 0, 0, 0); 
+  // Sumamos 1 hora a la hora actual para garantizar que la fecha de inicio siempre sea considerada 'futura' (por la validación de @Future del backend)
+  fecha.setHours(fecha.getHours() + 1, 0, 0, 0); 
   
   const anio = fecha.getFullYear();
   const mes = String(fecha.getMonth() + 1).padStart(2, '0');
@@ -102,10 +102,32 @@ const VehicleCatalogPage = () => {
     toast.info("Se restableció el catálogo completo.");
   }
 
-  const handleReservar = (vehiculo) => {
-    sessionStorage.setItem('reserva_temp', JSON.stringify({ vehiculo, inicio, fin }));
-    toast.success(`Vehículo ${vehiculo.marca} ${vehiculo.modelo} seleccionado.`);
-    navigate('/mis-reservas');
+  const handleReservar = async (vehiculo) => {
+    const idClienteStr = window.prompt("Simulación de sesión: Ingrese su ID de Cliente para confirmar la reserva:");
+    if (!idClienteStr) {
+      toast.info("Reserva cancelada (No se ingresó ID de Cliente).");
+      return;
+    }
+    
+    const idCliente = parseInt(idClienteStr, 10);
+    
+    if (isNaN(idCliente)) {
+      toast.error("El ID de Cliente debe ser un número.");
+      return;
+    }
+
+    try {
+      await reservationService.create({
+        idCliente: idCliente,
+        idVehiculo: vehiculo.idVehiculo,
+        fechaInicio: `${inicio}:00`,
+        fechaFin: `${fin}:00`
+      });
+      toast.success(`Vehículo ${vehiculo.marca} ${vehiculo.modelo} reservado con éxito.`);
+      navigate('/mis-reservas');
+    } catch (error) {
+      toast.error("Error al generar la reserva: " + (error.response?.data?.message || error.message));
+    }
   };
 
   // Se seleccionan según el estado de isFiltered
