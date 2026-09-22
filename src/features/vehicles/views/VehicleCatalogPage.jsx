@@ -1,3 +1,15 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useLazyQuery, useQuery } from "@apollo/client/react";
+import {
+  GET_VEHICULOS,
+  GET_VEHICULOS_DISPONIBLES,
+} from "../services/vehicleGraphQL";
+import { FaCar } from "react-icons/fa";
+import { toast } from "react-toastify";
+import { useAuth } from "../../../context/AuthContext";
+
+// Importación de subcomponentes
 import VehicleSearchForm from "../components/VehicleSearchForm";
 import VehicleFilters from "../components/VehicleFilters";
 import VehicleCard from "../components/VehicleCard";
@@ -19,7 +31,7 @@ const obtenerFechaFormateada = (diasDeDiferencia = 0) => {
 
 const VehicleCatalogPage = () => {
   const navigate = useNavigate();
-  const { clientProfile, isClient } = useAuth();
+  const { user, isClient } = useAuth();
 
   const [inicio, setInicio] = useState(obtenerFechaFormateada(0));
   const [fin, setFin] = useState(obtenerFechaFormateada(365));
@@ -92,32 +104,32 @@ const VehicleCatalogPage = () => {
     toast.info("Se restableció el catálogo completo.");
   };
 
-  const handleReservar = async (vehiculo) => {
-    if (!isClient || !clientProfile) {
-      toast.error(
-        "Debe iniciar sesión como cliente para realizar una reserva.",
-      );
-      return;
-    }
+    const handleReservar = async (vehiculo) => {
+      if (!isClient || !user?.email) {
+        toast.error(
+          "Debe iniciar sesión como cliente para realizar una reserva.",
+        );
+        return;
+      }
 
-    try {
-      await reservationService.create({
-        idCliente: clientProfile.idCliente,
-        idVehiculo: vehiculo.idVehiculo,
-        fechaInicio: `${inicio}:00`,
-        fechaFin: `${fin}:00`,
-      });
-      toast.success(
-        `Vehículo ${vehiculo.marca} ${vehiculo.modelo} reservado con éxito.`,
-      );
-      navigate("/mis-reservas");
-    } catch (error) {
-      toast.error(
-        "Error al generar la reserva: " +
-          (error.response?.data?.message || error.message),
-      );
-    }
-  };
+      try {
+        await reservationService.create({
+          emailCliente: user.email, // <- Enviamos el email en lugar de idCliente
+          idVehiculo: vehiculo.idVehiculo,
+          fechaInicio: `${inicio}:00`,
+          fechaFin: `${fin}:00`,
+        });
+        toast.success(
+          `Vehículo ${vehiculo.marca} ${vehiculo.modelo} reservado con éxito.`,
+        );
+        navigate("/mis-reservas");
+      } catch (error) {
+        toast.error(
+          "Error al generar la reserva: " +
+            (error.response?.data?.message || error.message),
+        );
+      }
+    };
 
   const vehiculos = isFiltered
     ? dataFiltered?.vehiculosDisponibles || []
