@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import { FaPlus, FaEdit, FaTrash, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import vehicleService from '../services/vehicleService';
+import ConfirmModal from '../../../components/ConfirmModal';
 
 const VehicleListPage = () => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [vehicleToDelete, setVehicleToDelete] = useState(null);
 
   const fetchVehicles = async () => {
     try {
@@ -25,16 +27,21 @@ const VehicleListPage = () => {
     fetchVehicles();
   }, []);
 
-  const handleDelete = async (id, patente) => {
-    if (window.confirm(`¿Estás seguro de dar de baja el vehículo con patente ${patente}?`)) {
-      try {
-        await vehicleService.delete(id);
-        toast.success('Vehículo dado de baja correctamente');
-        fetchVehicles(); // Refrescar la lista
-      } catch (error) {
-        toast.error('Error al dar de baja el vehículo');
-        console.error(error);
-      }
+  const handleDeleteClick = (idVehiculo, patente) => {
+    setVehicleToDelete({ idVehiculo, patente });
+  };
+
+  const confirmDelete = async () => {
+    if (!vehicleToDelete) return;
+    try {
+      await vehicleService.delete(vehicleToDelete.idVehiculo);
+      toast.success('Vehículo dado de baja correctamente');
+      fetchVehicles(); // Refrescar la lista
+    } catch (error) {
+      toast.error('Error al dar de baja el vehículo');
+      console.error(error);
+    } finally {
+      setVehicleToDelete(null);
     }
   };
 
@@ -77,8 +84,8 @@ const VehicleListPage = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehículo</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Diario</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activo</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Activo</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                 </tr>
               </thead>
@@ -99,7 +106,7 @@ const VehicleListPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{v.tipoVehiculo}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${v.precioDiario}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
                         {getStatusBadge(v.estado)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -120,7 +127,7 @@ const VehicleListPage = () => {
                           </Link>
                           {v.activo && (
                             <button
-                              onClick={() => handleDelete(v.idVehiculo, v.patente)}
+                              onClick={() => handleDeleteClick(v.idVehiculo, v.patente)}
                               className="text-red-600 hover:text-red-900 p-1 bg-red-50 rounded hover:bg-red-100 transition"
                               title="Dar de baja"
                             >
@@ -137,6 +144,39 @@ const VehicleListPage = () => {
           </div>
         </div>
       )}
+
+      {/* Modal de Confirmación de Baja */}
+      <ConfirmModal
+        isOpen={!!vehicleToDelete}
+        onClose={() => setVehicleToDelete(null)}
+        title="Dar de Baja Vehículo"
+      >
+        {vehicleToDelete && (
+          <div>
+            <p className="text-gray-600 text-[15px] mb-6">
+              ¿Está seguro de que desea dar de baja al vehículo con patente{" "}
+              <span className="font-semibold text-gray-900">
+                {vehicleToDelete.patente}
+              </span>
+              ?
+            </p>
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => setVehicleToDelete(null)}
+                className="px-5 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-5 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 shadow-sm transition-all"
+              >
+                Sí, dar de baja
+              </button>
+            </div>
+          </div>
+        )}
+      </ConfirmModal>
     </div>
   );
 };
