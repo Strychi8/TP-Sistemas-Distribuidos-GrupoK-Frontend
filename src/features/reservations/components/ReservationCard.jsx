@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 
-const ReservationCard = ({ reserva, onCancel }) => {
+const ReservationCard = ({ reserva, onCancel, showClient = false, showDays = true }) => {
   const getEstadoClasses = () => {
     switch (reserva.estado) {
       case "CONFIRMADA":
@@ -14,12 +14,14 @@ const ReservationCard = ({ reserva, onCancel }) => {
 
   return (
     <tr>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm font-medium text-gray-900">
-          {reserva.cliente.nombre} {reserva.cliente.apellido}
-        </div>
-        <div className="text-sm text-gray-500">{reserva.cliente.dni}</div>
-      </td>
+      {showClient && (
+        <td className="px-6 py-4 whitespace-nowrap">
+          <div className="text-sm font-medium text-gray-900">
+            {reserva.cliente.nombre} {reserva.cliente.apellido}
+          </div>
+          <div className="text-sm text-gray-500">{reserva.cliente.dni}</div>
+        </td>
+      )}
 
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm font-medium text-gray-900">
@@ -39,11 +41,17 @@ const ReservationCard = ({ reserva, onCancel }) => {
         </div>
       </td>
 
+      {showDays && (
+        <td className="px-6 py-4 whitespace-nowrap text-left text-sm text-gray-500">
+          {Math.max(1, dayjs(reserva.fechaFin).diff(dayjs(reserva.fechaInicio), "day"))} días
+        </td>
+      )}
+
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
         ${reserva.precioDiario} / ${reserva.importeTotal}
       </td>
 
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="px-6 py-4 whitespace-nowrap text-center">
         <span
           className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getEstadoClasses()}`}
         >
@@ -52,10 +60,10 @@ const ReservationCard = ({ reserva, onCancel }) => {
       </td>
 
       {onCancel && (
-        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+        <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
           {reserva.estado === "CONFIRMADA" && (
             <button
-              onClick={() => onCancel(reserva.idReserva)}
+              onClick={() => onCancel(reserva)}
               className="bg-[#1F2937] hover:bg-gray-700 text-white font-bold py-1.5 px-3 rounded transition-colors"
             >
               Cancelar

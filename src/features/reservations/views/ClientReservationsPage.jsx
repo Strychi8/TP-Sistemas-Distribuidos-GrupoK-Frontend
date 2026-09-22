@@ -5,23 +5,35 @@ import reservationService from "../services/reservationService";
 import { toast } from "react-toastify";
 import ReservationCard from "../components/ReservationCard";
 import { useAuth } from "../../../context/AuthContext";
+import ConfirmModal from "../../../components/ConfirmModal";
 
 const ClientReservationsPage = () => {
   const { clientProfile, isClient, clientProfileLoading } = useAuth();
   const idCliente = clientProfile?.idCliente;
 
   const [estadoFiltro, setEstadoFiltro] = useState("TODAS");
+  const [reservaToCancel, setReservaToCancel] = useState(null);
+
+  const filtroObj = idCliente ? { idCliente } : {};
+  if (estadoFiltro !== "TODAS") {
+    filtroObj.estado = estadoFiltro;
+  }
 
   const { loading, error, data, refetch } = useQuery(GET_RESERVAS, {
     variables: {
-      filtro: idCliente ? { idCliente } : null,
+      filtro: Object.keys(filtroObj).length > 0 ? filtroObj : null,
     },
     skip: !idCliente,
   });
 
-  const handleCancel = async (idReserva) => {
+  const handleCancelClick = (reserva) => {
+    setReservaToCancel(reserva);
+  };
+
+  const confirmCancel = async () => {
+    if (!reservaToCancel) return;
     try {
-      await reservationService.cancel(idReserva);
+      await reservationService.cancel(reservaToCancel.idReserva);
       toast.success("Reserva cancelada exitosamente.");
       refetch();
     } catch (error) {
@@ -29,6 +41,8 @@ const ClientReservationsPage = () => {
         "Error al cancelar la reserva: " +
           (error.response?.data?.message || error.message),
       );
+    } finally {
+      setReservaToCancel(null);
     }
   };
 
@@ -51,12 +65,7 @@ const ClientReservationsPage = () => {
     );
   }
 
-  // Filtrado dinámico en frontend según el estado seleccionado
-  const reservasFiltradas =
-    data?.reservas?.filter((reserva) => {
-      if (estadoFiltro === "TODAS") return true;
-      return reserva.estado === estadoFiltro;
-    }) || [];
+  const reservasFiltradas = data?.reservas || [];
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -106,21 +115,21 @@ const ClientReservationsPage = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Cliente
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Vehículo
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Fechas
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Precio D. / Total
+                  Días
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Precio D. / Total
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Estado
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Acciones
                 </th>
               </tr>
@@ -142,7 +151,7 @@ const ClientReservationsPage = () => {
                   <ReservationCard
                     key={reserva.idReserva}
                     reserva={reserva}
-                    onCancel={handleCancel}
+                    onCancel={handleCancelClick}
                   />
                 ))
               )}
@@ -150,6 +159,39 @@ const ClientReservationsPage = () => {
           </table>
         )}
       </div>
+
+      {/* Modal de Confirmación de Cancelación */}
+      <ConfirmModal
+        isOpen={!!reservaToCancel}
+        onClose={() => setReservaToCancel(null)}
+        title="Cancelar Reserva"
+      >
+        {reservaToCancel && (
+          <div>
+            <p className="text-gray-600 text-[15px] mb-6">
+              ¿Está seguro de que desea cancelar la reserva del vehículo{" "}
+              <span className="font-semibold text-gray-900">
+                {reservaToCancel.vehiculo.marca} {reservaToCancel.vehiculo.modelo}
+              </span>
+              ? Esta acción no se puede deshacer.
+            </p>
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => setReservaToCancel(null)}
+                className="px-5 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Volver
+              </button>
+              <button
+                onClick={confirmCancel}
+                className="px-5 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 shadow-sm transition-all"
+              >
+                Sí, cancelar reserva
+              </button>
+            </div>
+          </div>
+        )}
+      </ConfirmModal>
     </div>
   );
 };
