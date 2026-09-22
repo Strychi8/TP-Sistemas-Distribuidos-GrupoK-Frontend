@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
 const ClientTable = ({ clients, onDelete }) => {
   return (
@@ -23,6 +23,9 @@ const ClientTable = ({ clients, onDelete }) => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Fecha de Nacimiento
               </th>
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Activo
+              </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Acciones
               </th>
@@ -32,7 +35,7 @@ const ClientTable = ({ clients, onDelete }) => {
             {clients.length === 0 ? (
               <tr>
                 <td
-                  colSpan="6"
+                  colSpan="7"
                   className="px-6 py-10 text-center text-gray-500"
                 >
                   No hay clientes registrados en el sistema.
@@ -60,6 +63,13 @@ const ClientTable = ({ clients, onDelete }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {c.fechaNacimiento || "-"}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    {c.activo ? (
+                      <FaCheckCircle className="text-green-500 inline text-xl" title="Activo" />
+                    ) : (
+                      <FaTimesCircle className="text-red-500 inline text-xl" title="Inactivo" />
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end gap-3">
