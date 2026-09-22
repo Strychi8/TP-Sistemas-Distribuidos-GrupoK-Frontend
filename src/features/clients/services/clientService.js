@@ -19,6 +19,12 @@ const clientService = {
     return response.data;
   },
 
+  // Obtener el perfil del cliente logueado
+  getMyProfile: async () => {
+    const response = await api.get("/clientes/perfil");
+    return response.data;
+  },
+
   // Crear un nuevo cliente
   create: async (data) => {
     const response = await api.post("/clientes", data);

@@ -34,13 +34,10 @@ export const AuthProvider = ({ children }) => {
       if (user && user.rol === "CLIENTE" && !clientProfile) {
         setClientProfileLoading(true);
         try {
-          const clientes = await clientService.getActive();
-          const found = clientes.find(
-            (c) => c.email.toLowerCase() === user.email.toLowerCase()
-          );
-          if (found) {
-            setClientProfile(found);
-            sessionStorage.setItem("rentar_client_profile", JSON.stringify(found));
+          const profile = await clientService.getMyProfile();
+          if (profile) {
+            setClientProfile(profile);
+            sessionStorage.setItem("rentar_client_profile", JSON.stringify(profile));
           }
         } catch (error) {
           console.error("Error al obtener perfil de cliente:", error);
@@ -80,15 +77,12 @@ export const AuthProvider = ({ children }) => {
       // Intentamos precargar el perfil del cliente en el mismo login
       if (rol === "CLIENTE") {
         try {
-          const clientes = await clientService.getActive();
-          const found = clientes.find(
-            (c) => c.email.toLowerCase() === data.email.toLowerCase()
-          );
-          if (found) {
-            setClientProfile(found);
+          const profile = await clientService.getMyProfile();
+          if (profile) {
+            setClientProfile(profile);
             sessionStorage.setItem(
               "rentar_client_profile",
-              JSON.stringify(found)
+              JSON.stringify(profile)
             );
           }
         } catch (err) {
