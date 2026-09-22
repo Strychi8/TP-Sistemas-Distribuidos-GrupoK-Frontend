@@ -7,7 +7,7 @@ import ReservationCard from "../components/ReservationCard";
 import { useAuth } from "../../../context/AuthContext";
 
 const ClientReservationsPage = () => {
-  const { clientProfile, isClient } = useAuth();
+  const { clientProfile, isClient, clientProfileLoading } = useAuth();
   const idCliente = clientProfile?.idCliente;
 
   const [estadoFiltro, setEstadoFiltro] = useState("TODAS");
@@ -31,6 +31,15 @@ const ClientReservationsPage = () => {
       );
     }
   };
+
+  // Mientras el perfil de cliente está siendo cargado, mostramos un spinner
+  if (clientProfileLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   if (!isClient || !clientProfile) {
     return (

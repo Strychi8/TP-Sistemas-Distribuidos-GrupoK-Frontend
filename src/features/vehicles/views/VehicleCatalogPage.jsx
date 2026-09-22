@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLazyQuery, useQuery } from "@apollo/client/react";
+import { useLazyQuery, useQuery } from "@apollo/client";
 import {
   GET_VEHICULOS,
   GET_VEHICULOS_DISPONIBLES,
