@@ -1,32 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@apollo/client/react";
-import { useNavigate } from "react-router-dom";
-
 import { GET_RESERVAS } from "../services/reservationGraphQL";
 import reservationService from "../services/reservationService";
 import { toast } from "react-toastify";
 import ReservationCard from "../components/ReservationCard";
+import { useAuth } from "../../../context/AuthContext";
 
 const ClientReservationsPage = () => {
-  const navigate = useNavigate();
-  const [idCliente, setIdCliente] = useState(null);
+  const { clientProfile, isClient } = useAuth();
+  const idCliente = clientProfile?.idCliente;
 
-  useEffect(() => {
-    // Simulacion de login para el Hito 1
-    const idStr = window.prompt("Simulación de sesión: Ingrese su ID de Cliente para ver sus reservas:");
-    if (!idStr) {
-      toast.info("Debe ingresar un ID de cliente para ver sus reservas.");
-      navigate("/");
-      return;
-    }
-    const id = parseInt(idStr, 10);
-    if (isNaN(id)) {
-      toast.error("El ID de Cliente debe ser numérico.");
-      navigate("/");
-      return;
-    }
-    setIdCliente(id);
-  }, [navigate]);
+  const [estadoFiltro, setEstadoFiltro] = useState("TODAS");
 
   const { loading, error, data, refetch } = useQuery(GET_RESERVAS, {
     variables: {
@@ -41,18 +25,66 @@ const ClientReservationsPage = () => {
       toast.success("Reserva cancelada exitosamente.");
       refetch();
     } catch (error) {
-      toast.error("Error al cancelar la reserva: " + (error.response?.data?.message || error.message));
+      toast.error(
+        "Error al cancelar la reserva: " +
+          (error.response?.data?.message || error.message),
+      );
     }
   };
 
-  if (!idCliente) return null;
+  if (!isClient || !clientProfile) {
+    return (
+      <div className="p-6 max-w-6xl mx-auto text-center">
+        <p className="text-gray-600">
+          Cargando perfil de cliente o sesión no válida...
+        </p>
+      </div>
+    );
+  }
+
+  // Filtrado dinámico en frontend según el estado seleccionado
+  const reservasFiltradas =
+    data?.reservas?.filter((reserva) => {
+      if (estadoFiltro === "TODAS") return true;
+      return reserva.estado === estadoFiltro;
+    }) || [];
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Mis Reservas</h1>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800">Mis Reservas</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Cliente:{" "}
+            <span className="font-semibold text-gray-700">
+              {clientProfile.nombre} {clientProfile.apellido}
+            </span>{" "}
+            (DNI: {clientProfile.dni})
+          </p>
+        </div>
+
+        {/* Filtros por Estado */}
+        <div className="flex flex-wrap gap-2">
+          {["TODAS", "CONFIRMADA", "CANCELADA", "FINALIZADA"].map((estado) => (
+            <button
+              key={estado}
+              onClick={() => setEstadoFiltro(estado)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                estadoFiltro === estado
+                  ? "bg-blue-600 text-white shadow"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {estado === "TODAS" ? "Todas" : estado}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-        {loading && <p className="p-4">Cargando reservas...</p>}
+        {loading && (
+          <p className="p-4 text-center text-gray-500">Cargando reservas...</p>
+        )}
 
         {error && (
           <p className="p-4 text-red-500">
@@ -86,20 +118,21 @@ const ClientReservationsPage = () => {
             </thead>
 
             <tbody className="bg-white divide-y divide-gray-200">
-              {data.reservas.length === 0 ? (
+              {reservasFiltradas.length === 0 ? (
                 <tr>
                   <td
                     colSpan="6"
                     className="px-6 py-4 text-center text-sm text-gray-500"
                   >
-                    No tienes reservas registradas.
+                    No se encontraron reservas con el filtro seleccionado (
+                    {estadoFiltro}).
                   </td>
                 </tr>
               ) : (
-                data.reservas.map((reserva) => (
-                  <ReservationCard 
-                    key={reserva.idReserva} 
-                    reserva={reserva} 
+                reservasFiltradas.map((reserva) => (
+                  <ReservationCard
+                    key={reserva.idReserva}
+                    reserva={reserva}
                     onCancel={handleCancel}
                   />
                 ))

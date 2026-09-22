@@ -4,9 +4,11 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { FaEnvelope, FaLock, FaSignInAlt, FaCar } from "react-icons/fa";
 import dayjs from "dayjs";
+import { useAuth } from '../../../context/AuthContext';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -25,20 +27,20 @@ const LoginPage = () => {
     const toastId = toast.loading("Iniciando sesión...");
 
     try {
-      // Simulación de login (sin conexión al backend)
-      console.log("Login attempt:", data);
-
-      // Simular delay de red
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await login(data);
 
       toast.update(toastId, {
-        render: "Inicio de sesión exitoso (demo)",
+        render: `Bienvenido (${response.rol})`,
         type: "success",
         isLoading: false,
         autoClose: 3000,
       });
 
-      navigate("/catalogo");
+      if (response.rol === 'ADMINISTRADOR') {
+        navigate("/vehiculos");
+      } else {
+        navigate("/catalogo");
+      }
     } catch (error) {
       console.error(error);
       const errorMessage =
