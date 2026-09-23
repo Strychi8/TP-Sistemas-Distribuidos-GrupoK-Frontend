@@ -14,6 +14,7 @@ import VehicleSearchForm from "../components/VehicleSearchForm";
 import VehicleFilters from "../components/VehicleFilters";
 import VehicleCard from "../components/VehicleCard";
 import reservationService from "../../reservations/services/reservationService";
+import ConfirmModal from "../../../components/ConfirmModal";
 
 const obtenerFechaFormateada = (diasDeDiferencia = 0) => {
   const fecha = new Date();
@@ -31,12 +32,13 @@ const obtenerFechaFormateada = (diasDeDiferencia = 0) => {
 
 const VehicleCatalogPage = () => {
   const navigate = useNavigate();
-  const { user, isClient } = useAuth();
+  const { user, isClient, clientProfile } = useAuth();
 
   const [inicio, setInicio] = useState(obtenerFechaFormateada(0));
   const [fin, setFin] = useState(obtenerFechaFormateada(365));
   const [showFilters, setShowFilters] = useState(false);
   const [isFiltered, setIsFiltered] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
 
   const [filters, setFilters] = useState({
     tipoVehiculo: "",
@@ -104,23 +106,28 @@ const VehicleCatalogPage = () => {
     toast.info("Se restableció el catálogo completo.");
   };
 
-    const handleReservar = async (vehiculo) => {
-      if (!isClient || !user?.email) {
+    const handleReservarClick = (vehiculo) => {
+      if (!isClient || !clientProfile?.idCliente) {
         toast.error(
           "Debe iniciar sesión como cliente para realizar una reserva.",
         );
         return;
       }
+      setSelectedVehicle(vehiculo);
+    };
+
+    const confirmReservation = async () => {
+      if (!selectedVehicle) return;
 
       try {
         await reservationService.create({
-          emailCliente: user.email, // <- Enviamos el email en lugar de idCliente
-          idVehiculo: vehiculo.idVehiculo,
+          idCliente: clientProfile.idCliente,
+          idVehiculo: selectedVehicle.idVehiculo,
           fechaInicio: `${inicio}:00`,
           fechaFin: `${fin}:00`,
         });
         toast.success(
-          `Vehículo ${vehiculo.marca} ${vehiculo.modelo} reservado con éxito.`,
+          `Vehículo ${selectedVehicle.marca} ${selectedVehicle.modelo} reservado con éxito.`,
         );
         navigate("/mis-reservas");
       } catch (error) {
@@ -128,6 +135,8 @@ const VehicleCatalogPage = () => {
           "Error al generar la reserva: " +
             (error.response?.data?.message || error.message),
         );
+      } finally {
+        setSelectedVehicle(null);
       }
     };
 
@@ -176,13 +185,46 @@ const VehicleCatalogPage = () => {
               <VehicleCard
                 key={v.idVehiculo}
                 vehiculo={v}
-                onReservar={handleReservar}
+                onReservar={handleReservarClick}
                 showReserveButton={isFiltered && isClient}
               />
             ))
           )}
         </div>
       )}
+
+      {/* Modal de Confirmación de Reserva */}
+      <ConfirmModal
+        isOpen={!!selectedVehicle}
+        onClose={() => setSelectedVehicle(null)}
+        title="Confirmar Reserva"
+      >
+        {selectedVehicle && (
+          <div>
+            <p className="text-gray-600 text-[15px] mb-6">
+              ¿Está seguro de que desea reservar el vehículo{" "}
+              <span className="font-semibold text-gray-900">
+                {selectedVehicle.marca} {selectedVehicle.modelo}
+              </span>
+              ?
+            </p>
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => setSelectedVehicle(null)}
+                className="px-5 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmReservation}
+                className="px-5 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-sm transition-all active:scale-95"
+              >
+                Sí, reservar
+              </button>
+            </div>
+          </div>
+        )}
+      </ConfirmModal>
     </div>
   );
 };

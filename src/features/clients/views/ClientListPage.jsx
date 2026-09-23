@@ -4,10 +4,12 @@ import { FaPlus } from "react-icons/fa";
 import { toast } from "react-toastify";
 import clientService from "../services/clientService";
 import ClientTable from "../components/ClientTable";
+import ConfirmModal from "../../../components/ConfirmModal";
 
 const ClientListPage = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [clientToDelete, setClientToDelete] = useState(null);
 
   const fetchClients = async () => {
     try {
@@ -26,31 +28,32 @@ const ClientListPage = () => {
     fetchClients();
   }, []);
 
-  const handleDelete = async (id, nombre, apellido) => {
-    if (
-      window.confirm(
-        `¿Estás seguro de dar de baja al cliente ${nombre} ${apellido}?`,
-      )
-    ) {
-      const toastId = toast.loading("Procesando baja lógica...");
-      try {
-        await clientService.delete(id);
-        toast.update(toastId, {
-          render: "Cliente dado de baja correctamente",
-          type: "success",
-          isLoading: false,
-          autoClose: 3000,
-        });
-        fetchClients(); // Refrescar la lista
-      } catch (error) {
-        console.error(error);
-        toast.update(toastId, {
-          render: "Error al dar de baja el cliente",
-          type: "error",
-          isLoading: false,
-          autoClose: 4000,
-        });
-      }
+  const handleDeleteClick = (id, nombre, apellido) => {
+    setClientToDelete({ id, nombre, apellido });
+  };
+
+  const confirmDelete = async () => {
+    if (!clientToDelete) return;
+    const toastId = toast.loading("Procesando baja lógica...");
+    try {
+      await clientService.delete(clientToDelete.id);
+      toast.update(toastId, {
+        render: "Cliente dado de baja correctamente",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
+      fetchClients(); // Refrescar la lista
+    } catch (error) {
+      console.error(error);
+      toast.update(toastId, {
+        render: "Error al dar de baja el cliente",
+        type: "error",
+        isLoading: false,
+        autoClose: 4000,
+      });
+    } finally {
+      setClientToDelete(null);
     }
   };
 
@@ -73,8 +76,41 @@ const ClientListPage = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>
       ) : (
-        <ClientTable clients={clients} onDelete={handleDelete} />
+        <ClientTable clients={clients} onDelete={handleDeleteClick} />
       )}
+
+      {/* Modal de Confirmación de Baja */}
+      <ConfirmModal
+        isOpen={!!clientToDelete}
+        onClose={() => setClientToDelete(null)}
+        title="Dar de Baja Cliente"
+      >
+        {clientToDelete && (
+          <div>
+            <p className="text-gray-600 text-[15px] mb-6">
+              ¿Está seguro de que desea dar de baja al cliente{" "}
+              <span className="font-semibold text-gray-900">
+                {clientToDelete.nombre} {clientToDelete.apellido}
+              </span>
+              ?
+            </p>
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => setClientToDelete(null)}
+                className="px-5 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-5 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 shadow-sm transition-all"
+              >
+                Sí, dar de baja
+              </button>
+            </div>
+          </div>
+        )}
+      </ConfirmModal>
     </div>
   );
 };

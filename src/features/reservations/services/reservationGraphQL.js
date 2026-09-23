@@ -26,3 +26,17 @@ export const GET_RESERVAS = gql`
     }
   }
 `;
+
+export const GET_HISTORIAL_ALQUILERES = gql`
+  query GetHistorialAlquileres($idCliente: ID!) {
+    historialAlquileres(idCliente: $idCliente) {
+      vehiculo
+      patente
+      fechaInicio
+      fechaFinalizacion
+      cantidadDias
+      importeTotal
+      estado
+    }
+  }
+`;
