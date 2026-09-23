@@ -113,7 +113,7 @@ const ClientFormPage = () => {
             {/* Nombre */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre *
+                Nombre <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -133,7 +133,7 @@ const ClientFormPage = () => {
             {/* Apellido */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Apellido *
+                Apellido <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -153,7 +153,7 @@ const ClientFormPage = () => {
             {/* DNI */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                DNI *
+                DNI <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -177,7 +177,7 @@ const ClientFormPage = () => {
             {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Correo Electrónico *
+                Correo Electrónico <span className="text-red-500">*</span>
               </label>
               <input
                 type="email"
@@ -201,7 +201,7 @@ const ClientFormPage = () => {
             {/* Fecha de Nacimiento */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Fecha de Nacimiento *
+                Fecha de Nacimiento <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
@@ -221,7 +221,7 @@ const ClientFormPage = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Contraseña{" "}
-                {isEditMode ? "(Dejar en blanco para mantener la actual)" : "*"}
+                {isEditMode ? "(Dejar en blanco para mantener la actual)" : <span className="text-red-500">*</span>}
               </label>
               <input
                 type="password"

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@apollo/client/react";
-
+import { FaSearch } from "react-icons/fa";
 import { GET_RESERVAS } from "../services/reservationGraphQL";
 import ReservationCard from "../components/ReservationCard";
 
@@ -198,16 +198,16 @@ const ReservationListPage = () => {
         <div className="md:col-span-3 flex justify-end space-x-2">
           <button
             onClick={limpiarFiltros}
-            className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300"
+            className="bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-md hover:bg-gray-300"
           >
             Limpiar
           </button>
 
           <button
             onClick={aplicarFiltros}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+            className="bg-[#1F2937] text-white font-bold px-4 py-2 rounded shadow hover:bg-[#2d3f56] transition flex items-center gap-2"
           >
-            Buscar
+           <FaSearch />  Buscar
           </button>
         </div>
       </div>

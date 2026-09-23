@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import ReservationCard from "../components/ReservationCard";
 import { useAuth } from "../../../context/AuthContext";
 import ConfirmModal from "../../../components/ConfirmModal";
+import { FaSearch } from "react-icons/fa";
 
 const INITIAL_FILTERS = {
   vehiculo: "",
@@ -219,15 +220,15 @@ const ClientReservationsPage = () => {
         <div className="md:col-span-2 flex justify-end space-x-2 mt-2">
           <button
             onClick={limpiarFiltros}
-            className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300"
+            className="bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-md hover:bg-gray-300"
           >
             Limpiar
           </button>
           <button
             onClick={aplicarFiltros}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+            className="bg-[#1F2937] text-white font-bold px-4 py-2 rounded shadow hover:bg-[#2d3f56] transition flex items-center gap-2"
           >
-            Buscar
+            <FaSearch /> Buscar
           </button>
         </div>
       </div>

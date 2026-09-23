@@ -64,7 +64,7 @@ const ReservationCard = ({ reserva, onCancel, showClient = false, showDays = tru
           {reserva.estado === "CONFIRMADA" && (
             <button
               onClick={() => onCancel(reserva)}
-              className="bg-[#1F2937] hover:bg-gray-700 text-white font-bold py-1.5 px-3 rounded transition-colors"
+              className="bg-red-500 hover:bg-red-600 text-white font-bold py-1.5 px-3 rounded transition-colors"
             >
               Cancelar
             </button>
