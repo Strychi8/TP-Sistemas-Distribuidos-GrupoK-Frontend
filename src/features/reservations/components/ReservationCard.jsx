@@ -7,6 +7,8 @@ const ReservationCard = ({ reserva, onCancel, showClient = false, showDays = tru
         return "bg-green-100 text-green-800";
       case "CANCELADA":
         return "bg-red-100 text-red-800";
+      case "FINALIZADA":
+        return "bg-blue-100 text-blue-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -41,14 +43,12 @@ const ReservationCard = ({ reserva, onCancel, showClient = false, showDays = tru
         </div>
       </td>
 
-      {showDays && (
-        <td className="px-6 py-4 whitespace-nowrap text-left text-sm text-gray-500">
-          {Math.max(1, dayjs(reserva.fechaFin).diff(dayjs(reserva.fechaInicio), "day"))} días
-        </td>
-      )}
-
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-        ${reserva.precioDiario} / ${reserva.importeTotal}
+        ${reserva.precioDiario}
+      </td>
+      
+      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+        ${reserva.importeTotal}
       </td>
 
       <td className="px-6 py-4 whitespace-nowrap text-center">

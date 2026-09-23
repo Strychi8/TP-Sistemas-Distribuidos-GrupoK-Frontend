@@ -202,15 +202,12 @@ const VehicleFormPage = () => {
             {isEditMode && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Estado de Disponibilidad *</label>
-                <select
-                  {...register('estado', { required: 'El estado es obligatorio' })}
-                  className="w-full px-4 py-2 border border-gray-300 bg-white rounded-md focus:ring-blue-500 focus:border-blue-500"
-                >
-                  {ESTADOS_VEHICULO.map(estado => (
-                    <option key={estado} value={estado}>{estado}</option>
-                  ))}
-                </select>
-                {errors.estado && <p className="mt-1 text-sm text-red-600">{errors.estado.message}</p>}
+                <input
+                  type="text"
+                  {...register('estado')}
+                  readOnly
+                  className="w-full px-4 py-2 border border-gray-300 bg-gray-100 text-gray-500 rounded-md focus:outline-none cursor-not-allowed"
+                />
               </div>
             )}
           </div>

@@ -7,24 +7,69 @@ import ReservationCard from "../components/ReservationCard";
 import { useAuth } from "../../../context/AuthContext";
 import ConfirmModal from "../../../components/ConfirmModal";
 
+const INITIAL_FILTERS = {
+  vehiculo: "",
+  tipoVehiculo: "",
+  estado: "",
+  fechaDesde: "",
+  fechaHasta: "",
+};
+
 const ClientReservationsPage = () => {
   const { clientProfile, isClient, clientProfileLoading } = useAuth();
   const idCliente = clientProfile?.idCliente;
 
-  const [estadoFiltro, setEstadoFiltro] = useState("TODAS");
+  const [filtros, setFiltros] = useState(INITIAL_FILTERS);
+  const [filtroAplicado, setFiltroAplicado] = useState(null);
+  const [vehiculoFiltroAplicado, setVehiculoFiltroAplicado] = useState("");
+  
   const [reservaToCancel, setReservaToCancel] = useState(null);
 
-  const filtroObj = idCliente ? { idCliente } : {};
-  if (estadoFiltro !== "TODAS") {
-    filtroObj.estado = estadoFiltro;
+  const filtroVariables = { ...filtroAplicado };
+  if (idCliente && !filtroVariables.idCliente) {
+    filtroVariables.idCliente = idCliente;
   }
 
   const { loading, error, data, refetch } = useQuery(GET_RESERVAS, {
     variables: {
-      filtro: Object.keys(filtroObj).length > 0 ? filtroObj : null,
+      filtro: Object.keys(filtroVariables).length > 0 ? filtroVariables : null,
     },
     skip: !idCliente,
   });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFiltros((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const aplicarFiltros = () => {
+    const cleanedFiltros = { idCliente };
+
+    if (filtros.tipoVehiculo) {
+      cleanedFiltros.tipoVehiculo = filtros.tipoVehiculo;
+    }
+    if (filtros.estado) {
+      cleanedFiltros.estado = filtros.estado;
+    }
+    if (filtros.fechaDesde) {
+      cleanedFiltros.fechaDesde = `${filtros.fechaDesde}T00:00:00`;
+    }
+    if (filtros.fechaHasta) {
+      cleanedFiltros.fechaHasta = `${filtros.fechaHasta}T23:59:59`;
+    }
+
+    setFiltroAplicado(cleanedFiltros);
+    setVehiculoFiltroAplicado(filtros.vehiculo.toLowerCase());
+  };
+
+  const limpiarFiltros = () => {
+    setFiltros(INITIAL_FILTERS);
+    setFiltroAplicado({ idCliente });
+    setVehiculoFiltroAplicado("");
+  };
 
   const handleCancelClick = (reserva) => {
     setReservaToCancel(reserva);
@@ -46,7 +91,6 @@ const ClientReservationsPage = () => {
     }
   };
 
-  // Mientras el perfil de cliente está siendo cargado, mostramos un spinner
   if (clientProfileLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -65,7 +109,14 @@ const ClientReservationsPage = () => {
     );
   }
 
-  const reservasFiltradas = data?.reservas || [];
+  let reservasFiltradas = data?.reservas || [];
+
+  if (vehiculoFiltroAplicado) {
+    reservasFiltradas = reservasFiltradas.filter((r) => {
+      const vehiculoStr = `${r.vehiculo.marca} ${r.vehiculo.modelo}`.toLowerCase();
+      return vehiculoStr.includes(vehiculoFiltroAplicado);
+    });
+  }
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -80,22 +131,104 @@ const ClientReservationsPage = () => {
             (DNI: {clientProfile.dni})
           </p>
         </div>
+      </div>
 
-        {/* Filtros por Estado */}
-        <div className="flex flex-wrap gap-2">
-          {["TODAS", "CONFIRMADA", "CANCELADA", "FINALIZADA"].map((estado) => (
-            <button
-              key={estado}
-              onClick={() => setEstadoFiltro(estado)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                estadoFiltro === estado
-                  ? "bg-blue-600 text-white shadow"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              {estado === "TODAS" ? "Todas" : estado}
-            </button>
-          ))}
+      {/* Filtros */}
+      <div className="bg-white p-4 rounded-lg shadow mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="vehiculo" className="block text-sm font-medium text-gray-700">
+            Vehículo (Marca o Modelo)
+          </label>
+          <input
+            id="vehiculo"
+            type="text"
+            name="vehiculo"
+            value={filtros.vehiculo}
+            onChange={handleInputChange}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="tipoVehiculo" className="block text-sm font-medium text-gray-700">
+            Tipo de Vehículo
+          </label>
+          <select
+            id="tipoVehiculo"
+            name="tipoVehiculo"
+            value={filtros.tipoVehiculo}
+            onChange={handleInputChange}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+          >
+            <option value="">Todos</option>
+            <option value="SEDAN">Sedan</option>
+            <option value="SUV">SUV</option>
+            <option value="PICKUP">Pickup</option>
+            <option value="COUPE">Coupe</option>
+            <option value="HATCHBACK">Hatchback</option>
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="estado" className="block text-sm font-medium text-gray-700">
+            Estado
+          </label>
+          <select
+            id="estado"
+            name="estado"
+            value={filtros.estado}
+            onChange={handleInputChange}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+          >
+            <option value="">Todos</option>
+            <option value="CONFIRMADA">Confirmada</option>
+            <option value="CANCELADA">Cancelada</option>
+            <option value="FINALIZADA">Finalizada</option>
+          </select>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="fechaDesde" className="block text-sm font-medium text-gray-700">
+              Fecha Desde
+            </label>
+            <input
+              id="fechaDesde"
+              type="date"
+              name="fechaDesde"
+              value={filtros.fechaDesde}
+              onChange={handleInputChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+            />
+          </div>
+          <div>
+            <label htmlFor="fechaHasta" className="block text-sm font-medium text-gray-700">
+              Fecha Hasta
+            </label>
+            <input
+              id="fechaHasta"
+              type="date"
+              name="fechaHasta"
+              value={filtros.fechaHasta}
+              onChange={handleInputChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+            />
+          </div>
+        </div>
+
+        <div className="md:col-span-2 flex justify-end space-x-2 mt-2">
+          <button
+            onClick={limpiarFiltros}
+            className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300"
+          >
+            Limpiar
+          </button>
+          <button
+            onClick={aplicarFiltros}
+            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+          >
+            Buscar
+          </button>
         </div>
       </div>
 
@@ -121,10 +254,10 @@ const ClientReservationsPage = () => {
                   Fechas
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Días
+                  Precio Diario
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Precio D. / Total
+                  Importe Total
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Estado
@@ -142,8 +275,7 @@ const ClientReservationsPage = () => {
                     colSpan="6"
                     className="px-6 py-4 text-center text-sm text-gray-500"
                   >
-                    No se encontraron reservas con el filtro seleccionado (
-                    {estadoFiltro}).
+                    No se encontraron reservas con los filtros seleccionados.
                   </td>
                 </tr>
               ) : (
