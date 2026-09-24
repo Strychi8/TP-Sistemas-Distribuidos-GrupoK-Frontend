@@ -6,7 +6,6 @@ import { FaArrowLeft, FaSave } from 'react-icons/fa';
 import vehicleService from '../services/vehicleService';
 
 const TIPOS_VEHICULO = ['SEDAN', 'SUV', 'PICKUP', 'COUPE', 'HATCHBACK'];
-const ESTADOS_VEHICULO = ['DISPONIBLE', 'RESERVADO', 'EN_ALQUILER'];
 
 const VehicleFormPage = () => {
   const { id } = useParams();
@@ -14,7 +13,7 @@ const VehicleFormPage = () => {
   const isEditMode = Boolean(id);
   const [loading, setLoading] = useState(isEditMode);
 
-  const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm({
+  const { register, handleSubmit, formState: { errors }, reset } = useForm({
     defaultValues: {
       patente: '',
       marca: '',
@@ -33,7 +32,7 @@ const VehicleFormPage = () => {
         try {
           const data = await vehicleService.getById(id);
           reset(data);
-        } catch (error) {
+        } catch {
           toast.error('Error al cargar los datos del vehículo');
           navigate('/vehiculos');
         } finally {

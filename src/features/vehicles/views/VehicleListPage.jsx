@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaPlus, FaEdit, FaTrash, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import { FaPlus } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import vehicleService from '../services/vehicleService';
 import ConfirmModal from '../../../components/ConfirmModal';
@@ -25,6 +25,7 @@ const VehicleListPage = () => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line
     fetchVehicles();
   }, []);
 

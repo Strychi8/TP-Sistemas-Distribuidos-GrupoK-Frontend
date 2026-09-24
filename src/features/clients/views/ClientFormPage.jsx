@@ -34,7 +34,7 @@ const ClientFormPage = () => {
         try {
           const data = await clientService.getById(id);
           reset(data);
-        } catch (error) {
+        } catch {
           toast.error("Error al cargar los datos del cliente");
           navigate("/clientes");
         } finally {

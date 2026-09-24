@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { useLazyQuery, useQuery } from "@apollo/client/react";
 import {
   GET_VEHICULOS,
   GET_VEHICULOS_DISPONIBLES,
@@ -32,7 +32,7 @@ const obtenerFechaFormateada = (diasDeDiferencia = 0) => {
 
 const VehicleCatalogPage = () => {
   const navigate = useNavigate();
-  const { user, isClient, clientProfile } = useAuth();
+  const { isClient, clientProfile } = useAuth();
 
   const [inicio, setInicio] = useState(obtenerFechaFormateada(0));
   const [fin, setFin] = useState(obtenerFechaFormateada(365));

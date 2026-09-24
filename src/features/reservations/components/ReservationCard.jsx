@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 
-const ReservationCard = ({ reserva, onCancel, showClient = false, showDays = true }) => {
+const ReservationCard = ({ reserva, onCancel, showClient = false }) => {
   const getEstadoClasses = () => {
     switch (reserva.estado) {
       case "CONFIRMADA":

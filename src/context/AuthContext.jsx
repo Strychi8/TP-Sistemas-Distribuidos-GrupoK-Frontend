@@ -53,49 +53,45 @@ export const AuthProvider = ({ children }) => {
   }, [user, clientProfile]);
 
   const login = async (credentials) => {
-    try {
-      const data = await authService.login(credentials);
-      // data esperado del backend: { token, email, roles: [...] }
-      // Extraemos el primer rol del array y quitamos "ROLE_" si lo tuviera
-      const rawRole = data.roles?.[0] || "";
-      const rol = rawRole.replace("ROLE_", "");
+    const data = await authService.login(credentials);
+    // data esperado del backend: { token, email, roles: [...] }
+    // Extraemos el primer rol del array y quitamos "ROLE_" si lo tuviera
+    const rawRole = data.roles?.[0] || "";
+    const rol = rawRole.replace("ROLE_", "");
 
-      const userData = { email: data.email, rol };
+    const userData = { email: data.email, rol };
 
-      setToken(data.token);
-      setUser(userData);
+    setToken(data.token);
+    setUser(userData);
 
-      // Marcamos que el perfil está siendo cargado ANTES del setUser
-      // para que las páginas ya lo sepan cuando rendericen.
-      if (rol === "CLIENTE") {
-        setClientProfileLoading(true);
-      }
-
-      sessionStorage.setItem("rentar_token", data.token);
-      sessionStorage.setItem("rentar_user", JSON.stringify(userData));
-
-      // Intentamos precargar el perfil del cliente en el mismo login
-      if (rol === "CLIENTE") {
-        try {
-          const profile = await clientService.getMyProfile();
-          if (profile) {
-            setClientProfile(profile);
-            sessionStorage.setItem(
-              "rentar_client_profile",
-              JSON.stringify(profile)
-            );
-          }
-        } catch (err) {
-          console.error("No se pudo precargar perfil de cliente:", err);
-        } finally {
-          setClientProfileLoading(false);
-        }
-      }
-
-      return userData;
-    } catch (error) {
-      throw error;
+    // Marcamos que el perfil está siendo cargado ANTES del setUser
+    // para que las páginas ya lo sepan cuando rendericen.
+    if (rol === "CLIENTE") {
+      setClientProfileLoading(true);
     }
+
+    sessionStorage.setItem("rentar_token", data.token);
+    sessionStorage.setItem("rentar_user", JSON.stringify(userData));
+
+    // Intentamos precargar el perfil del cliente en el mismo login
+    if (rol === "CLIENTE") {
+      try {
+        const profile = await clientService.getMyProfile();
+        if (profile) {
+          setClientProfile(profile);
+          sessionStorage.setItem(
+            "rentar_client_profile",
+            JSON.stringify(profile)
+          );
+        }
+      } catch (err) {
+        console.error("No se pudo precargar perfil de cliente:", err);
+      } finally {
+        setClientProfileLoading(false);
+      }
+    }
+
+    return userData;
   };
 
   const logout = async () => {
@@ -130,6 +126,7 @@ export const AuthProvider = ({ children }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
