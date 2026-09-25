@@ -80,15 +80,17 @@ const ClientTable = ({ clients, onDelete }) => {
                       >
                         <FaEdit size={18} />
                       </Link>
-                      <button
-                        onClick={() =>
-                          onDelete(c.idCliente, c.nombre, c.apellido)
-                        }
-                        className="text-red-600 hover:text-red-900 p-1 bg-red-50 rounded hover:bg-red-100 transition"
-                        title="Dar de baja"
-                      >
-                        <FaTrash size={18} />
-                      </button>
+                      {c.activo && (
+                        <button
+                          onClick={() =>
+                            onDelete(c.idCliente, c.nombre, c.apellido)
+                          }
+                          className="text-red-600 hover:text-red-900 p-1 bg-red-50 rounded hover:bg-red-100 transition"
+                          title="Dar de baja"
+                        >
+                          <FaTrash size={18} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

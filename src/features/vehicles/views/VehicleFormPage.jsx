@@ -6,7 +6,6 @@ import { FaArrowLeft, FaSave } from 'react-icons/fa';
 import vehicleService from '../services/vehicleService';
 
 const TIPOS_VEHICULO = ['SEDAN', 'SUV', 'PICKUP', 'COUPE', 'HATCHBACK'];
-const ESTADOS_VEHICULO = ['DISPONIBLE', 'RESERVADO', 'EN_ALQUILER'];
 
 const VehicleFormPage = () => {
   const { id } = useParams();
@@ -14,7 +13,7 @@ const VehicleFormPage = () => {
   const isEditMode = Boolean(id);
   const [loading, setLoading] = useState(isEditMode);
 
-  const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm({
+  const { register, handleSubmit, formState: { errors }, reset } = useForm({
     defaultValues: {
       patente: '',
       marca: '',
@@ -33,7 +32,7 @@ const VehicleFormPage = () => {
         try {
           const data = await vehicleService.getById(id);
           reset(data);
-        } catch (error) {
+        } catch {
           toast.error('Error al cargar los datos del vehículo');
           navigate('/vehiculos');
         } finally {
@@ -107,7 +106,7 @@ const VehicleFormPage = () => {
             
             {/* Patente */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Patente *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Patente <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 {...register('patente', { required: 'La patente es obligatoria' })}
@@ -120,7 +119,7 @@ const VehicleFormPage = () => {
 
             {/* Tipo de Vehículo */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Vehículo *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Vehículo <span className="text-red-500">*</span></label>
               <select
                 {...register('tipoVehiculo', { required: 'El tipo es obligatorio' })}
                 className="w-full px-4 py-2 border border-gray-300 bg-white rounded-md focus:ring-blue-500 focus:border-blue-500"
@@ -134,7 +133,7 @@ const VehicleFormPage = () => {
 
             {/* Marca */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Marca *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Marca <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 {...register('marca', { required: 'La marca es obligatoria' })}
@@ -146,7 +145,7 @@ const VehicleFormPage = () => {
 
             {/* Modelo */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Modelo *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Modelo <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 {...register('modelo', { required: 'El modelo es obligatorio' })}
@@ -158,9 +157,11 @@ const VehicleFormPage = () => {
 
             {/* Año */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Año *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Año <span className="text-red-500">*</span></label>
               <input
                 type="number"
+                min="1900"
+                max={new Date().getFullYear() + 1}
                 {...register('anio', { 
                   required: 'El año es obligatorio',
                   min: { value: 1900, message: 'Año inválido' },
@@ -184,7 +185,7 @@ const VehicleFormPage = () => {
 
             {/* Precio Diario */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Precio Diario ($) *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Precio Diario ($) <span className="text-red-500">*</span></label>
               <input
                 type="number"
                 step="0.01"
@@ -201,16 +202,13 @@ const VehicleFormPage = () => {
             {/* Estado (Solo visible en Edición según la lógica de negocio) */}
             {isEditMode && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Estado de Disponibilidad *</label>
-                <select
-                  {...register('estado', { required: 'El estado es obligatorio' })}
-                  className="w-full px-4 py-2 border border-gray-300 bg-white rounded-md focus:ring-blue-500 focus:border-blue-500"
-                >
-                  {ESTADOS_VEHICULO.map(estado => (
-                    <option key={estado} value={estado}>{estado}</option>
-                  ))}
-                </select>
-                {errors.estado && <p className="mt-1 text-sm text-red-600">{errors.estado.message}</p>}
+                <label className="block text-sm font-medium text-gray-700 mb-1">Estado de Disponibilidad <span className="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  {...register('estado')}
+                  readOnly
+                  className="w-full px-4 py-2 border border-gray-300 bg-gray-100 text-gray-500 rounded-md focus:outline-none cursor-not-allowed"
+                />
               </div>
             )}
           </div>

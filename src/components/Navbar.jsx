@@ -41,6 +41,7 @@ function Navbar({ brandLogo = "/rentar-logo.svg", brandAlt = "Rentar Logo" }) {
       return [
         { path: "/catalogo", label: "Catálogo de Vehículos" },
         { path: "/mis-reservas", label: "Mis Reservas" },
+        { path: "/historial", label: "Historial de Alquileres" },
       ];
     }
     return [];

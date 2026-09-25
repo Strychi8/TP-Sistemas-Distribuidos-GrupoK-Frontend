@@ -6,6 +6,7 @@ import ClientFormPage from '../features/clients/views/ClientFormPage';
 import ReservationListPage from '../features/reservations/views/ReservationListPage';
 import VehicleCatalogPage from '../features/vehicles/views/VehicleCatalogPage';
 import ClientReservationsPage from '../features/reservations/views/ClientReservationsPage';
+import ClientHistoryPage from '../features/reservations/views/ClientHistoryPage';
 import LoginPage from '../features/auth/views/LoginPage';
 import ProtectedRoute from './ProtectedRoute';
 import ErrorView from '../components/ErrorView';
@@ -43,6 +44,8 @@ const AppRoutes = () => {
         <Route path="/catalogo" element={<VehicleCatalogPage />} />
         {/* Ruta de reservas de cliente */}
         <Route path="/mis-reservas" element={<ClientReservationsPage />} />
+        {/* Ruta de historial de cliente */}
+        <Route path="/historial" element={<ClientHistoryPage />} />
       </Route>
 
       {/* Rutas 404 - Not Found */}
