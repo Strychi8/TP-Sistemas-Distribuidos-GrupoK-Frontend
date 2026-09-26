@@ -1,19 +1,6 @@
 const VehicleCard = ({ vehiculo, onReservar, showReserveButton }) => {
   const { tipoVehiculo, precioDiario, marca, modelo, patente, anio } = vehiculo;
 
-  const obtenerColorEstado = (est) => {
-    switch (est) {
-      case "DISPONIBLE":
-        return "bg-green-100 text-green-800";
-      case "RESERVADO":
-        return "bg-yellow-100 text-yellow-800";
-      case "EN_ALQUILER":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   return (
     <div className="bg-white rounded-lg shadow-md p-5 flex flex-col justify-between border border-gray-100 hover:shadow-lg transition">
       <div>

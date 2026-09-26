@@ -68,7 +68,7 @@ const VehicleSearchForm = ({
         </div>
         <button
           type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded shadow transition duration-200 flex items-center gap-2"
+          className="bg-[#1F2937] hover:bg-[#2d3f56] text-white font-bold py-2 px-6 rounded shadow transition duration-200 flex items-center gap-2"
         >
           <FaSearch /> Buscar Disponibilidad
         </button>
