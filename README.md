@@ -36,13 +36,20 @@ src/
 
 ---
 
+### 📋 **Requisitos Previos**
+
+- **Node.js** (versión 18 o superior recomendada).
+- **Backend en ejecución:** Es indispensable tener corriendo el servidor Backend del TP localmente en el puerto `8081` para que el frontend pueda consumir las APIs REST y GraphQL sin problemas.
+
+---
+
 ### ⚙️ **Configuración Previa**
 
 Antes de ejecutar el proyecto, asegúrate de crear un archivo `.env` en la raíz del repositorio con las URLs de conexión al backend:
 
 ```env
-VITE_API_URL=http://localhost:8081/api       # URL base para los endpoints REST
-VITE_GRAPHQL_URL=http://localhost:8081/graphql # URL para el endpoint de GraphQL
+VITE_API_URL=http://localhost:8081/api              # URL base para los endpoints REST
+VITE_GRAPHQL_URL=http://localhost:8081/graphql      # URL para el endpoint de GraphQL
 ```
 
 ---
@@ -69,6 +76,19 @@ VITE_GRAPHQL_URL=http://localhost:8081/graphql # URL para el endpoint de GraphQL
     ```
 
 El frontend quedará disponible en `http://localhost:5173`.
+
+---
+
+### 🔑 **Credenciales de Prueba**
+
+Para facilitar las pruebas, el backend inicializa la base de datos con los siguientes usuarios predeterminados:
+
+- **Administrador:**
+  - **Email:** `admin@empresarentar.com`
+  - **Contraseña:** `admin123`
+- **Cliente:**
+  - **Email:** `juan.perez@gmail.com`
+  - **Contraseña:** `123456`
 
 ---
 
