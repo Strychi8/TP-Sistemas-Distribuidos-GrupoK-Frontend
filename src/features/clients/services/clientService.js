@@ -7,12 +7,6 @@ const clientService = {
     return response.data;
   },
 
-  // Obtener únicamente clientes activos
-  getActive: async () => {
-    const response = await api.get("/clientes/activos");
-    return response.data;
-  },
-
   // Obtener un cliente por su ID
   getById: async (id) => {
     const response = await api.get(`/clientes/${id}`);

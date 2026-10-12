@@ -121,7 +121,6 @@ const VehicleCatalogPage = () => {
 
       try {
         await reservationService.create({
-          idCliente: clientProfile.idCliente,
           idVehiculo: selectedVehicle.idVehiculo,
           fechaInicio: `${inicio}:00`,
           fechaFin: `${fin}:00`,
