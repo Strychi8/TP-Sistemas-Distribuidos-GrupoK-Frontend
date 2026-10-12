@@ -1,0 +1,30 @@
+# Artefactos de build (se regeneran dentro de la imagen)
+node_modules
+dist
+dist-ssr
+build
+
+# Git / metadatos
+.git
+.gitignore
+
+# Variables de entorno locales: NO deben filtrarse al contexto de build.
+# El unico origen de las VITE_* es el --build-arg (fuente unica de verdad).
+.env
+.env.local
+.env.*.local
+
+# Docker (no se necesitan dentro de la imagen)
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Docs, editores y basura
+docs
+README.md
+.vscode
+.idea
+*.log
+.DS_Store
+Thumbs.db
+.agents
