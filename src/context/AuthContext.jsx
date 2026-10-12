@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import authService from "../features/auth/services/authService";
 import clientService from "../features/clients/services/clientService";
 import { toast } from "react-toastify";
+import { decodeJwt } from "../utils/jwt";
 
 const AuthContext = createContext(null);
 
@@ -53,27 +54,27 @@ export const AuthProvider = ({ children }) => {
   }, [user, clientProfile]);
 
   const login = async (credentials) => {
-    const data = await authService.login(credentials);
-    // data esperado del backend: { token, email, roles: [...] }
-    // Extraemos el primer rol del array y quitamos "ROLE_" si lo tuviera
-    const rawRole = data.roles?.[0] || "";
-    const rol = rawRole.replace("ROLE_", "");
+    // El gateway devuelve SOLO { token }: derivamos email y rol decodificando el JWT.
+    const { token: jwt } = await authService.login(credentials);
+    const claims = decodeJwt(jwt) || {};
+    const roles = Array.isArray(claims.roles) ? claims.roles : [];
+    const rol = (roles[0] || "").replace("ROLE_", "");
 
-    const userData = { email: data.email, rol };
+    const userData = { email: claims.sub, rol };
 
-    setToken(data.token);
+    setToken(jwt);
     setUser(userData);
 
-    // Marcamos que el perfil está siendo cargado ANTES del setUser
+    // Marcamos el perfil como "cargando" ANTES del setUser
     // para que las páginas ya lo sepan cuando rendericen.
     if (rol === "CLIENTE") {
       setClientProfileLoading(true);
     }
 
-    sessionStorage.setItem("rentar_token", data.token);
+    sessionStorage.setItem("rentar_token", jwt);
     sessionStorage.setItem("rentar_user", JSON.stringify(userData));
 
-    // Intentamos precargar el perfil del cliente en el mismo login
+    // Precargamos el perfil del cliente en el mismo login.
     if (rol === "CLIENTE") {
       try {
         const profile = await clientService.getMyProfile();
@@ -81,7 +82,7 @@ export const AuthProvider = ({ children }) => {
           setClientProfile(profile);
           sessionStorage.setItem(
             "rentar_client_profile",
-            JSON.stringify(profile)
+            JSON.stringify(profile),
           );
         }
       } catch (err) {
