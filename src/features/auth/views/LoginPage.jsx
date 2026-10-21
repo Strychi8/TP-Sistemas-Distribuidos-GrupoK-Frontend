@@ -8,8 +8,22 @@ import { useAuth } from '../../../context/AuthContext';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, loginMockUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleMockClientLogin = () => {
+    loginMockUser(
+      { email: "cliente.propietario@rentar.com", rol: "CLIENTE" },
+      {
+        id: 1,
+        nombre: "Carlos",
+        apellido: "Gómez",
+        documento: "30123456",
+        email: "cliente.propietario@rentar.com",
+      }
+    );
+    navigate("/mis-vehiculos");
+  };
 
   const {
     register,
@@ -155,6 +169,32 @@ const LoginPage = () => {
               )}
             </button>
           </form>
+
+          {/* Separador Modo Simulado / Desarrollo */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white px-2 text-gray-500 font-semibold tracking-wider">
+                Desarrollo / Hito 3
+              </span>
+            </div>
+          </div>
+
+          {/* Acceso Rápido Simulado */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+            <p className="text-xs text-blue-800 font-medium mb-3">
+              ¿Querés probar la <strong>Tarjeta 8</strong> sin levantar el Backend?
+            </p>
+            <button
+              type="button"
+              onClick={handleMockClientLogin}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-md shadow-sm transition-colors"
+            >
+              <FaCar /> Entrar como Cliente (Mis Vehículos)
+            </button>
+          </div>
         </div>
 
         {/* Copyright */}

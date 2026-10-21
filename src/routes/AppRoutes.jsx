@@ -1,6 +1,8 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import VehicleListPage from '../features/vehicles/views/VehicleListPage';
 import VehicleFormPage from '../features/vehicles/views/VehicleFormPage';
+import ExternalVehicleListPage from '../features/vehicles/views/ExternalVehicleListPage';
+import ExternalVehicleFormPage from '../features/vehicles/views/ExternalVehicleFormPage';
 import ClientListPage from '../features/clients/views/ClientListPage';
 import ClientFormPage from '../features/clients/views/ClientFormPage';
 import ReservationListPage from '../features/reservations/views/ReservationListPage';
@@ -42,6 +44,9 @@ const AppRoutes = () => {
       <Route element={<ProtectedRoute allowedRoles={["CLIENTE"]} />}>
         {/* Ruta de catalogo de cliente */}
         <Route path="/catalogo" element={<VehicleCatalogPage />} />
+        {/* Rutas de vehiculos propios del cliente (Hito 3 - Tarjeta 8) */}
+        <Route path="/mis-vehiculos" element={<ExternalVehicleListPage />} />
+        <Route path="/mis-vehiculos/nuevo" element={<ExternalVehicleFormPage />} />
         {/* Ruta de reservas de cliente */}
         <Route path="/mis-reservas" element={<ClientReservationsPage />} />
         {/* Ruta de historial de cliente */}
