@@ -37,6 +37,7 @@ const ClientReservationsPage = () => {
     },
     skip: !idCliente,
     pollInterval: 8000,
+    notifyOnNetworkStatusChange: false,
   });
 
   const handleInputChange = (e) => {
@@ -235,17 +236,17 @@ const ClientReservationsPage = () => {
       </div>
 
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-        {loading && (
+        {loading && !data && (
           <p className="p-4 text-center text-gray-500">Cargando reservas...</p>
         )}
 
-        {error && (
+        {error && !data && (
           <p className="p-4 text-red-500">
             Error al cargar las reservas: {error.message}
           </p>
         )}
 
-        {!loading && !error && data?.reservas && (
+        {data?.reservas && (
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>

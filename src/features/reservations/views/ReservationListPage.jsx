@@ -23,6 +23,7 @@ const ReservationListPage = () => {
       filtro: filtroAplicado,
     },
     pollInterval: 8000,
+    notifyOnNetworkStatusChange: false,
   });
 
   const handleInputChange = (e) => {
@@ -215,15 +216,15 @@ const ReservationListPage = () => {
 
       {/* Resultados */}
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-        {loading && <p className="p-4">Cargando reservas...</p>}
+        {loading && !data && <p className="p-4">Cargando reservas...</p>}
 
-        {error && (
+        {error && !data && (
           <p className="p-4 text-red-500">
             Error al cargar las reservas: {error.message}
           </p>
         )}
 
-        {!loading && !error && data?.reservas && (
+        {data?.reservas && (
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
