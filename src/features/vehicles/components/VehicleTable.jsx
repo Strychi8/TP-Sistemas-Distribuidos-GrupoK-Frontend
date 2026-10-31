@@ -27,19 +27,25 @@ const VehicleTable = ({ vehicles, onDelete }) => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Diario</th>
               <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
               <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Activo</th>
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Inhabilitado</th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {vehicles.length === 0 ? (
               <tr>
-                <td colSpan="7" className="px-6 py-10 text-center text-gray-500">
+                <td colSpan="8" className="px-6 py-10 text-center text-gray-500">
                   No hay vehículos registrados en el sistema.
                 </td>
               </tr>
             ) : (
               vehicles.map((v) => (
-                <tr key={v.idVehiculo} className="hover:bg-gray-50 transition-colors">
+                <tr
+                  key={v.idVehiculo}
+                  className={`transition-colors ${
+                    v.inhabilitado ? "bg-red-50/40 hover:bg-red-50/70" : "hover:bg-gray-50"
+                  }`}
+                >
                   <td className="px-6 py-4 whitespace-nowrap font-mono text-sm text-gray-900 font-bold">{v.patente}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{v.marca} {v.modelo}</div>
@@ -55,6 +61,25 @@ const VehicleTable = ({ vehicles, onDelete }) => {
                       <FaCheckCircle className="text-green-500 inline text-xl" title="Activo" />
                     ) : (
                       <FaTimesCircle className="text-red-500 inline text-xl" title="Inactivo" />
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    {v.inhabilitado ? (
+                      <span
+                        title="Inhabilitado para nuevas operaciones por denuncia de robo (Hito 3 - Kafka)"
+                        className="px-2.5 py-1 inline-flex items-center gap-1.5 text-xs font-bold rounded-full bg-red-100 text-red-800 border border-red-300 shadow-sm"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></span>
+                        INHABILITADO
+                      </span>
+                    ) : (
+                      <span
+                        title="Vehículo apto para operar"
+                        className="px-2.5 py-1 inline-flex items-center gap-1.5 text-xs font-medium rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        Habilitado
+                      </span>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
