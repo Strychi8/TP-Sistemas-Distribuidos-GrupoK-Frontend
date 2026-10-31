@@ -9,80 +9,35 @@ import {
   FaShieldAlt,
   FaIdCard,
   FaInfoCircle,
-  FaBolt,
-  FaRedoAlt,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 import externalVehicleService from "../services/externalVehicleService";
-import { useAuth } from "../../../context/AuthContext";
-import dayjs from "dayjs";
 
 const ExternalVehicleListPage = () => {
-  const { user } = useAuth();
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [resolvingId, setResolvingId] = useState(null);
-
-  const fetchVehicles = async (showLoading = true) => {
-    try {
-      if (showLoading) setLoading(true);
-      const data = await externalVehicleService.getAllByCliente(user?.id);
-      setVehicles(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error(error);
-      if (showLoading) toast.error("Error al cargar tus vehículos externos");
-    } finally {
-      if (showLoading) setLoading(false);
-    }
-  };
 
   useEffect(() => {
-    fetchVehicles(true);
+    const loadVehicles = ({ showError = false } = {}) => {
+      externalVehicleService
+        .listarVehiculos()
+        .then((data) => setVehicles(Array.isArray(data) ? data : []))
+        .catch((error) => {
+          console.error(error);
+          if (showError) toast.error("Error al cargar tus vehículos externos");
+        })
+        .finally(() => setLoading(false));
+    };
+
+    loadVehicles({ showError: true });
 
     // Polling cada 10 segundos para refrescar el estado de solicitudes (eventos Kafka asíncronos)
     const interval = setInterval(() => {
-      fetchVehicles(false);
+      loadVehicles();
     }, 10000);
 
     return () => clearInterval(interval);
-    // eslint-disable-next-line
   }, []);
-
-  const handleSimulateKafka = async (id, patenteResult, titularidadResult) => {
-    try {
-      setResolvingId(id);
-      const toastId = toast.loading("Simulando eventos de Apache Kafka...");
-      const updated = await externalVehicleService.simulateKafkaResolution(id, {
-        validacionPatente: patenteResult,
-        validacionTitularidad: titularidadResult,
-      });
-
-      const message =
-        updated.estado === "APROBADO"
-          ? "¡Eventos recibidos! El vehículo fue APROBADO e incorporado al sistema."
-          : "¡Eventos recibidos! El vehículo fue RECHAZADO por observaciones en las validaciones.";
-
-      toast.update(toastId, {
-        render: message,
-        type: updated.estado === "APROBADO" ? "success" : "warning",
-        isLoading: false,
-        autoClose: 4000,
-      });
-
-      fetchVehicles();
-    } catch (error) {
-      console.error(error);
-      toast.error("Error al simular la resolución de Kafka");
-    } finally {
-      setResolvingId(null);
-    }
-  };
-
-  const handleResetData = () => {
-    externalVehicleService.resetMockData();
-    toast.info("Datos de prueba restaurados a su estado inicial");
-    fetchVehicles();
-  };
 
   const getStatusBadge = (estado) => {
     switch (estado) {
@@ -158,13 +113,6 @@ const ExternalVehicleListPage = () => {
         </div>
 
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          <button
-            onClick={handleResetData}
-            title="Restablecer datos de prueba a valores iniciales"
-            className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
-          >
-            <FaRedoAlt /> Reiniciar Demo
-          </button>
           <Link
             to="/mis-vehiculos/nuevo"
             className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-5 rounded-lg shadow-sm hover:shadow transition duration-200 text-sm"
@@ -281,13 +229,11 @@ const ExternalVehicleListPage = () => {
                   <th className="px-6 py-4">Precio Diario</th>
                   <th className="px-6 py-4">Estado General</th>
                   <th className="px-6 py-4">Validaciones Kafka</th>
-                  <th className="px-6 py-4 text-center">Simulación / Demo</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {vehicles.map((v) => {
                   const vehicleId = v.idVehiculoExterno || v.id;
-                  const fecha = v.fechaCreacion || v.fechaRegistro;
                   return (
                     <tr key={vehicleId} className="hover:bg-gray-50 transition-colors">
                       {/* Vehículo */}
@@ -301,7 +247,7 @@ const ExternalVehicleListPage = () => {
                               {v.marca} {v.modelo}
                             </p>
                             <p className="text-xs text-gray-400">
-                              Color: {v.color || 'No especificado'} {fecha ? `• Postulado el ${dayjs(fecha).format("DD/MM/YYYY")}` : ''}
+                              Color: {v.color || 'No especificado'}
                             </p>
                           </div>
                         </div>
@@ -329,11 +275,7 @@ const ExternalVehicleListPage = () => {
                       {/* Estado General */}
                       <td className="px-6 py-4">
                         {getStatusBadge(v.estado)}
-                        {v.motivoRechazo ? (
-                          <p className="text-[11px] text-rose-600 mt-1 max-w-xs leading-tight">
-                            {v.motivoRechazo}
-                          </p>
-                        ) : v.estado === 'RECHAZADO' ? (
+                        {v.estado === 'RECHAZADO' ? (
                           <p className="text-[11px] text-rose-600 mt-1 max-w-xs leading-tight">
                             {v.validacionPatente === 'RECHAZADO' && v.validacionTitularidad === 'RECHAZADO'
                               ? 'Rechazado por verificación policial y titularidad.'
@@ -358,36 +300,6 @@ const ExternalVehicleListPage = () => {
                           </span>
                           {getValidationBadge(v.validacionTitularidad)}
                         </div>
-                      </td>
-
-                      {/* Acciones / Simulación Demo */}
-                      <td className="px-6 py-4 text-center">
-                        {v.estado === "PENDIENTE" ? (
-                          <div className="flex flex-col gap-1.5 items-center">
-                            <button
-                              disabled={resolvingId === vehicleId}
-                              onClick={() =>
-                                handleSimulateKafka(vehicleId, "VALIDADO", "VALIDADO")
-                              }
-                              className="w-full px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-medium flex items-center justify-center gap-1 shadow-sm transition disabled:opacity-50"
-                            >
-                              <FaBolt className="text-[10px]" /> Simular Aprobación
-                            </button>
-                            <button
-                              disabled={resolvingId === vehicleId}
-                              onClick={() =>
-                                handleSimulateKafka(vehicleId, "VALIDADO", "RECHAZADO")
-                              }
-                              className="w-full px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded text-xs font-medium flex items-center justify-center gap-1 transition disabled:opacity-50"
-                            >
-                              <FaBolt className="text-[10px]" /> Simular Rechazo
-                            </button>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-gray-400 italic">
-                            Proceso completado
-                          </span>
-                        )}
                       </td>
                     </tr>
                   );

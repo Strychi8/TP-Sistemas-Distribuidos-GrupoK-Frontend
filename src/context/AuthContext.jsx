@@ -112,30 +112,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const loginMockUser = (
-    mockUser = { email: "cliente.demo@rentar.com", rol: "CLIENTE" },
-    mockProfile = {
-      id: 1,
-      nombre: "Carlos",
-      apellido: "Gómez",
-      documento: "30123456",
-      email: "cliente.demo@rentar.com",
-    }
-  ) => {
-    const mockToken = "mock-jwt-token-h3";
-    setToken(mockToken);
-    setUser(mockUser);
-    setClientProfile(mockProfile);
-    setClientProfileLoading(false);
-
-    sessionStorage.setItem("rentar_token", mockToken);
-    sessionStorage.setItem("rentar_user", JSON.stringify(mockUser));
-    sessionStorage.setItem("rentar_client_profile", JSON.stringify(mockProfile));
-
-    toast.success(`Modo Simulado: Sesión iniciada como ${mockUser.rol}`);
-    return mockUser;
-  };
-
   const value = {
     user,
     token,
@@ -145,7 +121,6 @@ export const AuthProvider = ({ children }) => {
     isAdmin: user?.rol === "ADMINISTRADOR",
     isClient: user?.rol === "CLIENTE",
     login,
-    loginMockUser,
     logout,
   };
 
