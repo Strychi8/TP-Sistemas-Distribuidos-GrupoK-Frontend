@@ -99,6 +99,9 @@ Para facilitar las pruebas, el backend inicializa la base de datos con los sigui
 - **Gestión de Vehículos:** Listado, alta, modificación, baja lógica (disponible para el rol administrador).
 - **Catálogo de Vehículos:** Visualización de vehículos disponibles y filtrado avanzado consumiendo el servicio de GraphQL (disponible para clientes).
 - **Gestión de Reservas:** Flujo para crear reservas (REST) y panel de historial de alquileres (el administrador puede visualizar todas las reservas, mientras que el cliente visualiza únicamente las suyas).
+- **Incorporación de Vehículo Propio (Hito 3 - Cliente):**
+  - Vista para postular vehículo propio (`/mis-vehiculos/nuevo`) con validaciones de patente (formato tradicional o Mercosur) y precio sugerido.
+  - Panel de seguimiento de solicitudes (`/mis-vehiculos`) con badges de estado (`PENDIENTE`, `APROBADO`, `RECHAZADO`), métricas de solicitudes, detalle de validaciones policial y titularidad, y polling en segundo plano cada 10 segundos para capturar resoluciones asíncronas de Kafka.
 
 ---
 
