@@ -9,6 +9,7 @@ export const GET_RESERVAS = gql`
       importeTotal
       precioDiario
       estado
+      resultadoMantenimiento
       cliente {
         idCliente
         nombre

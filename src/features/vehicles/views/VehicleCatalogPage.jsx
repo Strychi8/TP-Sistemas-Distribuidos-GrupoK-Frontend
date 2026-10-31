@@ -107,6 +107,12 @@ const VehicleCatalogPage = () => {
   };
 
     const handleReservarClick = (vehiculo) => {
+      if (vehiculo.inhabilitado) {
+        toast.error(
+          "Este vehículo se encuentra inhabilitado por verificación policial y no puede ser reservado.",
+        );
+        return;
+      }
       if (!isClient || !clientProfile?.idCliente) {
         toast.error(
           "Debe iniciar sesión como cliente para realizar una reserva.",
@@ -139,9 +145,11 @@ const VehicleCatalogPage = () => {
       }
     };
 
-  const vehiculos = isFiltered
+  const rawVehiculos = isFiltered
     ? dataFiltered?.vehiculosDisponibles || []
     : dataAll?.vehiculos || [];
+  // Excluir vehículos inhabilitados por verificación policial/Kafka (Hito 3)
+  const vehiculos = rawVehiculos.filter((v) => !v.inhabilitado);
   const loading = loadingAll || loadingFiltered;
 
   return (

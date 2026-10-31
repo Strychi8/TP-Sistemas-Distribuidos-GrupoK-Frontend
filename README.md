@@ -102,6 +102,12 @@ Para facilitar las pruebas, el backend inicializa la base de datos con los sigui
 - **Incorporación de Vehículo Propio (Hito 3 - Cliente):**
   - Vista para postular vehículo propio (`/mis-vehiculos/nuevo`) con validaciones de patente (formato tradicional o Mercosur) y precio sugerido.
   - Panel de seguimiento de solicitudes (`/mis-vehiculos`) con badges de estado (`PENDIENTE`, `APROBADO`, `RECHAZADO`), métricas de solicitudes, detalle de validaciones policial y titularidad, y polling en segundo plano cada 10 segundos para capturar resoluciones asíncronas de Kafka.
+- **Inhabilitación de Vehículos por Denuncia de Robo (Hito 3 - Kafka):**
+  - Panel del administrador: Los vehículos marcados como `ROBADO` tras la verificación asíncrona exhiben un badge destacado `INHABILITADO` con alerta visual en la tabla de flota.
+  - Catálogo de clientes: Los vehículos inhabilitados son excluidos de las búsquedas de disponibilidad y bloqueados para cualquier intento de reserva o alquiler operativo.
+- **Mantenimiento Preventivo Asíncrono en Reservas (Hito 3 - Kafka):**
+  - Vistas de reservas (`/reservas` y `/mis-reservas`): Se incluye una columna dedicada para el dictamen del mantenimiento preventivo con badges visuales (`REALIZADO`, `NO_REALIZADO`, `EN REVISIÓN` con animación de pulso).
+  - Actualización reactiva mediante polling periódico (cada 8 segundos) en Apollo Client para reflejar la resolución del evento en segundo plano sin recargar la página.
 
 ---
 
