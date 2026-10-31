@@ -4,10 +4,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import {
   FaArrowLeft,
-  FaCar,
   FaCheck,
   FaShieldAlt,
-  FaInfoCircle,
 } from "react-icons/fa";
 import externalVehicleService from "../services/externalVehicleService";
 import { useAuth } from "../../../context/AuthContext";
@@ -16,7 +14,7 @@ const TIPOS_VEHICULO = ["SEDAN", "SUV", "PICKUP", "HATCHBACK", "COUPE"];
 
 const ExternalVehicleFormPage = () => {
   const navigate = useNavigate();
-  const { user, clientProfile } = useAuth();
+  const { clientProfile } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -50,7 +48,7 @@ const ExternalVehicleFormPage = () => {
         precioDiario: parseFloat(data.precioDiario),
       };
 
-      await externalVehicleService.create(payload);
+      await externalVehicleService.postularVehiculo(payload);
 
       toast.update(toastId, {
         render:
