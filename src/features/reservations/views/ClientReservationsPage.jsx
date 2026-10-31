@@ -36,6 +36,7 @@ const ClientReservationsPage = () => {
       filtro: Object.keys(filtroVariables).length > 0 ? filtroVariables : null,
     },
     skip: !idCliente,
+    pollInterval: 8000,
   });
 
   const handleInputChange = (e) => {
@@ -264,6 +265,9 @@ const ClientReservationsPage = () => {
                   Estado
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Mantenimiento
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Acciones
                 </th>
               </tr>
@@ -273,7 +277,7 @@ const ClientReservationsPage = () => {
               {reservasFiltradas.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="6"
+                    colSpan="7"
                     className="px-6 py-4 text-center text-sm text-gray-500"
                   >
                     No se encontraron reservas con los filtros seleccionados.

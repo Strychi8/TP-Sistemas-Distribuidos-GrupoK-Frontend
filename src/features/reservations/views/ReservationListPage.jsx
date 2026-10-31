@@ -22,6 +22,7 @@ const ReservationListPage = () => {
     variables: {
       filtro: filtroAplicado,
     },
+    pollInterval: 8000,
   });
 
   const handleInputChange = (e) => {
@@ -249,6 +250,9 @@ const ReservationListPage = () => {
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Estado
                 </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Mantenimiento
+                </th>
               </tr>
             </thead>
 
@@ -256,7 +260,7 @@ const ReservationListPage = () => {
               {reservasMostradas.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="5"
+                    colSpan="7"
                     className="px-6 py-4 text-center text-sm text-gray-500"
                   >
                     No hay reservas para mostrar con esos filtros.

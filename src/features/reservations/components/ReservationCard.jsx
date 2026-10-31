@@ -14,23 +14,58 @@ const ReservationCard = ({ reserva, onCancel, showClient = false }) => {
     }
   };
 
+  const getMantenimientoBadge = () => {
+    const res = (reserva.resultadoMantenimiento || "").toUpperCase();
+    if (res === "REALIZADO") {
+      return (
+        <span
+          title="Mantenimiento preventivo completado"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300 shadow-sm"
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          Realizado
+        </span>
+      );
+    }
+    if (res === "NO_REALIZADO") {
+      return (
+        <span
+          title="Mantenimiento preventivo no realizado"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-rose-50 text-rose-700 border border-rose-300 shadow-sm"
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+          No Realizado
+        </span>
+      );
+    }
+    return (
+      <span
+        title="Procesando mantenimiento preventivo de forma asíncrona"
+        className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full bg-amber-50 text-amber-700 border border-amber-300 shadow-sm"
+      >
+        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
+        En Revisión
+      </span>
+    );
+  };
+
   return (
     <tr>
       {showClient && (
         <td className="px-6 py-4 whitespace-nowrap">
           <div className="text-sm font-medium text-gray-900">
-            {reserva.cliente.nombre} {reserva.cliente.apellido}
+            {reserva.cliente?.nombre} {reserva.cliente?.apellido}
           </div>
-          <div className="text-sm text-gray-500">{reserva.cliente.dni}</div>
+          <div className="text-sm text-gray-500">{reserva.cliente?.dni}</div>
         </td>
       )}
 
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm font-medium text-gray-900">
-          {reserva.vehiculo.marca} {reserva.vehiculo.modelo}
+          {reserva.vehiculo?.marca} {reserva.vehiculo?.modelo}
         </div>
         <div className="text-sm text-gray-500">
-          {reserva.vehiculo.patente} - {reserva.vehiculo.tipoVehiculo}
+          {reserva.vehiculo?.patente} - {reserva.vehiculo?.tipoVehiculo}
         </div>
       </td>
 
@@ -53,10 +88,14 @@ const ReservationCard = ({ reserva, onCancel, showClient = false }) => {
 
       <td className="px-6 py-4 whitespace-nowrap text-center">
         <span
-          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getEstadoClasses()}`}
+          className={`px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getEstadoClasses()}`}
         >
           {reserva.estado}
         </span>
+      </td>
+
+      <td className="px-6 py-4 whitespace-nowrap text-center">
+        {getMantenimientoBadge()}
       </td>
 
       {onCancel && (
