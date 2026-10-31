@@ -41,12 +41,11 @@ const ExternalVehicleFormPage = () => {
 
     try {
       const payload = {
-        clienteId: clientProfile?.id || user?.id || 1,
-        patente: data.patente.toUpperCase(),
-        marca: data.marca,
-        modelo: data.modelo,
+        patente: data.patente.toUpperCase().trim(),
+        marca: data.marca.trim(),
+        modelo: data.modelo.trim(),
         anio: parseInt(data.anio, 10),
-        color: data.color,
+        color: data.color.trim(),
         tipoVehiculo: data.tipoVehiculo,
         precioDiario: parseFloat(data.precioDiario),
       };

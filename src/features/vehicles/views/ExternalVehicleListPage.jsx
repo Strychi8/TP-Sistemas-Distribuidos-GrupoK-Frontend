@@ -23,21 +23,28 @@ const ExternalVehicleListPage = () => {
   const [loading, setLoading] = useState(true);
   const [resolvingId, setResolvingId] = useState(null);
 
-  const fetchVehicles = async () => {
+  const fetchVehicles = async (showLoading = true) => {
     try {
-      setLoading(true);
-      const data = await externalVehicleService.getAllByCliente(user?.id || 1);
-      setVehicles(data);
+      if (showLoading) setLoading(true);
+      const data = await externalVehicleService.getAllByCliente(user?.id);
+      setVehicles(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error(error);
-      toast.error("Error al cargar tus vehículos externos");
+      if (showLoading) toast.error("Error al cargar tus vehículos externos");
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchVehicles();
+    fetchVehicles(true);
+
+    // Polling cada 10 segundos para refrescar el estado de solicitudes (eventos Kafka asíncronos)
+    const interval = setInterval(() => {
+      fetchVehicles(false);
+    }, 10000);
+
+    return () => clearInterval(interval);
     // eslint-disable-next-line
   }, []);
 
@@ -278,101 +285,113 @@ const ExternalVehicleListPage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {vehicles.map((v) => (
-                  <tr key={v.id} className="hover:bg-gray-50 transition-colors">
-                    {/* Vehículo */}
-                    <td className="px-6 py-4 font-medium text-gray-900">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 font-bold">
-                          <FaCar />
+                {vehicles.map((v) => {
+                  const vehicleId = v.idVehiculoExterno || v.id;
+                  const fecha = v.fechaCreacion || v.fechaRegistro;
+                  return (
+                    <tr key={vehicleId} className="hover:bg-gray-50 transition-colors">
+                      {/* Vehículo */}
+                      <td className="px-6 py-4 font-medium text-gray-900">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 font-bold">
+                            <FaCar />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900">
+                              {v.marca} {v.modelo}
+                            </p>
+                            <p className="text-xs text-gray-400">
+                              Color: {v.color || 'No especificado'} {fecha ? `• Postulado el ${dayjs(fecha).format("DD/MM/YYYY")}` : ''}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-semibold text-gray-900">
-                            {v.marca} {v.modelo}
+                      </td>
+
+                      {/* Patente */}
+                      <td className="px-6 py-4">
+                        <span className="inline-block px-2.5 py-1 bg-gray-900 text-white font-mono text-xs font-bold rounded tracking-wider shadow-sm border border-gray-700">
+                          {v.patente}
+                        </span>
+                      </td>
+
+                      {/* Año / Tipo */}
+                      <td className="px-6 py-4">
+                        <span className="text-gray-800 font-medium">{v.anio}</span>
+                        <span className="text-xs text-gray-400 block">{v.tipoVehiculo}</span>
+                      </td>
+
+                      {/* Precio Diario */}
+                      <td className="px-6 py-4 font-semibold text-gray-900">
+                        ${v.precioDiario?.toLocaleString("es-AR")}
+                        <span className="text-xs text-gray-400 block font-normal">/día</span>
+                      </td>
+
+                      {/* Estado General */}
+                      <td className="px-6 py-4">
+                        {getStatusBadge(v.estado)}
+                        {v.motivoRechazo ? (
+                          <p className="text-[11px] text-rose-600 mt-1 max-w-xs leading-tight">
+                            {v.motivoRechazo}
                           </p>
-                          <p className="text-xs text-gray-400">
-                            Color: {v.color} • Postulado el {dayjs(v.fechaRegistro).format("DD/MM/YYYY")}
+                        ) : v.estado === 'RECHAZADO' ? (
+                          <p className="text-[11px] text-rose-600 mt-1 max-w-xs leading-tight">
+                            {v.validacionPatente === 'RECHAZADO' && v.validacionTitularidad === 'RECHAZADO'
+                              ? 'Rechazado por verificación policial y titularidad.'
+                              : v.validacionPatente === 'RECHAZADO'
+                              ? 'Rechazado: Patente con pedido de secuestro en registro policial.'
+                              : 'Rechazado: Titular en registro automotor no coincide con el DNI del cliente.'}
                           </p>
+                        ) : null}
+                      </td>
+
+                      {/* Validaciones Kafka */}
+                      <td className="px-6 py-4 space-y-1.5">
+                        <div className="flex items-center justify-between gap-2 text-xs">
+                          <span className="flex items-center gap-1 text-gray-500 text-[11px]">
+                            <FaShieldAlt className="text-gray-400" /> Registro Policial:
+                          </span>
+                          {getValidationBadge(v.validacionPatente)}
                         </div>
-                      </div>
-                    </td>
-
-                    {/* Patente */}
-                    <td className="px-6 py-4">
-                      <span className="inline-block px-2.5 py-1 bg-gray-900 text-white font-mono text-xs font-bold rounded tracking-wider shadow-sm border border-gray-700">
-                        {v.patente}
-                      </span>
-                    </td>
-
-                    {/* Año / Tipo */}
-                    <td className="px-6 py-4">
-                      <span className="text-gray-800 font-medium">{v.anio}</span>
-                      <span className="text-xs text-gray-400 block">{v.tipoVehiculo}</span>
-                    </td>
-
-                    {/* Precio Diario */}
-                    <td className="px-6 py-4 font-semibold text-gray-900">
-                      ${v.precioDiario?.toLocaleString("es-AR")}
-                      <span className="text-xs text-gray-400 block font-normal">/día</span>
-                    </td>
-
-                    {/* Estado General */}
-                    <td className="px-6 py-4">
-                      {getStatusBadge(v.estado)}
-                      {v.motivoRechazo && (
-                        <p className="text-[11px] text-rose-600 mt-1 max-w-xs leading-tight">
-                          {v.motivoRechazo}
-                        </p>
-                      )}
-                    </td>
-
-                    {/* Validaciones Kafka */}
-                    <td className="px-6 py-4 space-y-1.5">
-                      <div className="flex items-center justify-between gap-2 text-xs">
-                        <span className="flex items-center gap-1 text-gray-500 text-[11px]">
-                          <FaShieldAlt className="text-gray-400" /> Registro Policial:
-                        </span>
-                        {getValidationBadge(v.validacionPatente)}
-                      </div>
-                      <div className="flex items-center justify-between gap-2 text-xs">
-                        <span className="flex items-center gap-1 text-gray-500 text-[11px]">
-                          <FaIdCard className="text-gray-400" /> Titularidad:
-                        </span>
-                        {getValidationBadge(v.validacionTitularidad)}
-                      </div>
-                    </td>
-
-                    {/* Acciones / Simulación Demo */}
-                    <td className="px-6 py-4 text-center">
-                      {v.estado === "PENDIENTE" ? (
-                        <div className="flex flex-col gap-1.5 items-center">
-                          <button
-                            disabled={resolvingId === v.id}
-                            onClick={() =>
-                              handleSimulateKafka(v.id, "VALIDADO", "VALIDADO")
-                            }
-                            className="w-full px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-medium flex items-center justify-center gap-1 shadow-sm transition disabled:opacity-50"
-                          >
-                            <FaBolt className="text-[10px]" /> Simular Aprobación
-                          </button>
-                          <button
-                            disabled={resolvingId === v.id}
-                            onClick={() =>
-                              handleSimulateKafka(v.id, "VALIDADO", "RECHAZADO")
-                            }
-                            className="w-full px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded text-xs font-medium flex items-center justify-center gap-1 transition disabled:opacity-50"
-                          >
-                            <FaBolt className="text-[10px]" /> Simular Rechazo
-                          </button>
+                        <div className="flex items-center justify-between gap-2 text-xs">
+                          <span className="flex items-center gap-1 text-gray-500 text-[11px]">
+                            <FaIdCard className="text-gray-400" /> Titularidad:
+                          </span>
+                          {getValidationBadge(v.validacionTitularidad)}
                         </div>
-                      ) : (
-                        <span className="text-xs text-gray-400 italic">
-                          Proceso completado
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+
+                      {/* Acciones / Simulación Demo */}
+                      <td className="px-6 py-4 text-center">
+                        {v.estado === "PENDIENTE" ? (
+                          <div className="flex flex-col gap-1.5 items-center">
+                            <button
+                              disabled={resolvingId === vehicleId}
+                              onClick={() =>
+                                handleSimulateKafka(vehicleId, "VALIDADO", "VALIDADO")
+                              }
+                              className="w-full px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-medium flex items-center justify-center gap-1 shadow-sm transition disabled:opacity-50"
+                            >
+                              <FaBolt className="text-[10px]" /> Simular Aprobación
+                            </button>
+                            <button
+                              disabled={resolvingId === vehicleId}
+                              onClick={() =>
+                                handleSimulateKafka(vehicleId, "VALIDADO", "RECHAZADO")
+                              }
+                              className="w-full px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded text-xs font-medium flex items-center justify-center gap-1 transition disabled:opacity-50"
+                            >
+                              <FaBolt className="text-[10px]" /> Simular Rechazo
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400 italic">
+                            Proceso completado
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
